@@ -49,9 +49,18 @@ The floating panels, rounded corners, glass borders, and animations are powered 
 2. Search for **Custom UI Style** (by `subframe7536`)
 3. Click **Install**
 
-### Step 3: Install Geist Mono font
+### Step 3: Install fonts
 
-This theme uses [Geist Mono](https://vercel.com/font) as its font. Download and install it on your system. If you prefer a different font, update the `editor.fontFamily` and `terminal.integrated.fontFamily` values in the settings.
+This theme uses two fonts:
+
+- **[Geist Mono](https://vercel.com/font)** — used in the editor and terminal
+- **Bear Sans UI** — used in the sidebar, tabs, command center, and status bar (included in `fonts/` folder)
+
+To install Bear Sans UI:
+1. Open the `fonts/` folder in this repo
+2. Select all `.otf` files and double-click to open in Font Book (macOS) or right-click > Install (Windows)
+
+If you prefer different fonts, update the `editor.fontFamily`, `terminal.integrated.fontFamily`, and `font-family` values in the settings.
 
 ### Step 4: Apply the settings
 

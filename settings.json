@@ -99,7 +99,8 @@
    },
    ".tab": {
       "margin": "0 !important",
-      "border-right": "none !important"
+      "border-right": "none !important",
+      "font-family": "'Bear Sans UI', sans-serif !important"
    },
    ".tab .tab-actions .action-label": {
       "border-radius": "50% !important"
@@ -200,7 +201,8 @@
       "background-color": "#121216 !important"
    },
    ".part.statusbar": {
-      "background-color": "#121216 !important"
+      "background-color": "#121216 !important",
+      "font-family": "'Bear Sans UI', sans-serif !important"
    },
    ".part.statusbar .statusbar-item-label": {
       "transition": "color 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
@@ -233,6 +235,7 @@
       "border-radius": "50% !important"
    },
    ".command-center-center": {
+      "font-family": "'Bear Sans UI', sans-serif !important",
       "border-radius": "9999px !important",
       "overflow": "hidden !important",
       "border": "none !important",
