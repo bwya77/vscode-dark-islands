@@ -84,8 +84,8 @@
       "border-radius": "6px !important",
       "outline": "none !important"
    },
-   ".part.editor": {
-      "margin": "8px 8px 0 8px",
+    ".part.editor": {
+       "margin": "8px 16px 0 8px",
       "border-radius": "24px !important",
       "overflow": "hidden !important",
       "max-height": "calc(100% - 16px) !important",
@@ -158,9 +158,9 @@
       "border-radius": "10px !important",
       "width": "calc(100% - 14px) !important"
    },
-   ".part.activitybar": {
-      "background": "#121216 !important",
-      "margin": "8px 20px 30px 12px",
+    ".part.activitybar": {
+       "background": "#121216 !important",
+       "margin": "8px 20px 30px 8px",
       "width": "48px !important",
       "min-width": "48px !important"
    },
