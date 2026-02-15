@@ -36,6 +36,10 @@
    ".part.sidebar .content": {
       "width": "calc(100% - 20px) !important"
    },
+   ".part.sidebar .welcome-view-content": {
+      "max-width": "100% !important",
+      "box-sizing": "border-box !important"
+   },
    ".part.sidebar .pane-header": {
       "border-radius": "6px !important",
       "outline-offset": "-1px !important"
@@ -181,6 +185,24 @@
    ".search-widget .search-container .monaco-findInput": {
       "width": "228px !important",
       "height": "26px !important"
+   },
+   ".results.show-file-icons": {
+      "margin-bottom": "22px !important"
+   },
+   ".extensions-search-container .suggest-input-container": {
+      "border-radius": "9999px !important",
+      "overflow": "hidden !important"
+   },
+   ".scm-editor": {
+      "border-radius": "9999px !important",
+      "overflow": "hidden !important"
+   },
+   ".scm-input": {
+      "border-radius": "9999px !important",
+      "overflow": "hidden !important"
+   },
+   ".part.sidebar .monaco-button": {
+      "border-radius": "9999px !important"
    },
    ".part.panel.bottom": {
       "margin": "0 8px",
