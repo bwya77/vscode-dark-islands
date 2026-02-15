@@ -36,6 +36,13 @@
    ".part.sidebar .content": {
       "width": "calc(100% - 20px) !important"
    },
+   ".part.sidebar .pane-header": {
+      "border-radius": "6px !important",
+      "outline-offset": "-1px !important"
+   },
+   ".part.sidebar .split-view-container": {
+      "transform": "translateY(-22px) !important"
+   },
    ".part.sidebar .header": {
       "padding-right": "20px !important"
    },
