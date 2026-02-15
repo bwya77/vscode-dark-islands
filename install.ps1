@@ -8,37 +8,57 @@ Write-Host "Islands Dark Theme Installer for Windows" -ForegroundColor Cyan
 Write-Host "================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Check if VS Code is installed
-$codePath = Get-Command "code" -ErrorAction SilentlyContinue
-if (-not $codePath) {
-    # Try to find code in common locations
+# Function to find VS Code command in common locations
+function Find-VSCode {
+    param([string]$Command, [string]$DisplayName)
+
+    $cmdPath = Get-Command $Command -ErrorAction SilentlyContinue
+    if ($cmdPath) { return $true }
+
+    # Try common installation locations
     $possiblePaths = @(
-        "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
-        "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
-        "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd"
+        "$env:LOCALAPPDATA\Programs\Microsoft $DisplayName\bin\$Command.cmd",
+        "$env:ProgramFiles\Microsoft $DisplayName\bin\$Command.cmd",
+        "${env:ProgramFiles(x86)}\Microsoft $DisplayName\bin\$Command.cmd"
     )
 
-    $found = $false
     foreach ($path in $possiblePaths) {
         if (Test-Path $path) {
             $env:Path += ";$(Split-Path $path)"
-            $found = $true
-            break
+            return $true
         }
     }
-
-    if (-not $found) {
-        Write-Host "Error: VS Code CLI (code) not found!" -ForegroundColor Red
-        Write-Host "Please install VS Code and make sure 'code' command is in your PATH."
-        Write-Host "You can do this by:"
-        Write-Host "  1. Open VS Code"
-        Write-Host "  2. Press Ctrl+Shift+P"
-        Write-Host "  3. Type 'Shell Command: Install code command in PATH'"
-        exit 1
-    }
+    return $false
 }
 
-Write-Host "VS Code CLI found" -ForegroundColor Green
+# Detect VS Code or VS Code Insiders
+$codeCmd = ""
+$vscodeDir = ""
+
+if (Find-VSCode "code" "VS Code") {
+    $codeCmd = "code"
+    $vscodeDir = "vscode"
+} elseif (Find-VSCode "code-insiders" "VS Code Insiders") {
+    $codeCmd = "code-insiders"
+    $vscodeDir = "vscode-insiders"
+}
+
+# Exit if neither found
+if (-not $codeCmd) {
+    Write-Host "Error: VS Code CLI not found!" -ForegroundColor Red
+    Write-Host "Please install VS Code or VS Code Insiders and make sure the CLI command is in your PATH."
+    Write-Host "You can do this by:"
+    Write-Host "  1. Open VS Code or VS Code Insiders"
+    Write-Host "  2. Press Ctrl+Shift+P"
+    Write-Host "  3. Type 'Shell Command: Install code command in PATH'"
+    exit 1
+}
+
+Write-Host "$codeCmd CLI found" -ForegroundColor Green
+
+# Set paths based on detected version
+$extDirBase = "$env:USERPROFILE\.$vscodeDir"
+$settingsDirBase = if ($vscodeDir -eq "vscode") { "$env:APPDATA\Code" } else { "$env:APPDATA\Code - Insiders" }
 
 # Get the directory where this script is located
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -47,7 +67,7 @@ Write-Host ""
 Write-Host "Step 1: Installing Islands Dark theme extension..."
 
 # Install by copying to VS Code extensions directory
-$extDir = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
+$extDir = "$extDirBase\extensions\bwya77.islands-dark-1.0.0"
 if (Test-Path $extDir) {
     Remove-Item -Recurse -Force $extDir
 }
@@ -65,7 +85,7 @@ if (Test-Path "$extDir\themes") {
 Write-Host ""
 Write-Host "Step 2: Installing Custom UI Style extension..."
 try {
-    $output = code --install-extension subframe7536.custom-ui-style --force 2>&1
+    $output = & $codeCmd --install-extension subframe7536.custom-ui-style --force 2>&1
     Write-Host "Custom UI Style extension installed" -ForegroundColor Green
 } catch {
     Write-Host "Could not install Custom UI Style extension automatically" -ForegroundColor Yellow
@@ -101,7 +121,7 @@ try {
 
 Write-Host ""
 Write-Host "Step 4: Applying VS Code settings..."
-$settingsDir = "$env:APPDATA\Code\User"
+$settingsDir = "$settingsDirBase\User"
 if (-not (Test-Path $settingsDir)) {
     New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null
 }
@@ -111,10 +131,11 @@ $settingsFile = Join-Path $settingsDir "settings.json"
 # Function to strip JSONC features (comments and trailing commas) for JSON parsing
 function Strip-Jsonc {
     param([string]$Text)
-    # Remove single-line comments
-    $Text = $Text -replace '//.*$', ''
-    # Remove multi-line comments
+    # Remove multi-line comments first
     $Text = $Text -replace '/\*[\s\S]*?\*/', ''
+    # Remove single-line comments (only those not inside strings)
+    $Text = $Text -replace '(?m)^\s*//.*$', ''  # Comments at start of line
+    $Text = $Text -replace '(?m)([^:"''])//.*$', '$1'  # Comments after non-string content
     # Remove trailing commas before } or ]
     $Text = $Text -replace ',\s*([}\]])', '$1'
     return $Text
@@ -192,9 +213,9 @@ Write-Host ""
 # Reload VS Code
 Write-Host "   Reloading VS Code..." -ForegroundColor Cyan
 try {
-    code --reload-window 2>$null
+    & $codeCmd --reload-window 2>$null
 } catch {
-    code $scriptDir 2>$null
+    & $codeCmd $scriptDir 2>$null
 }
 
 Write-Host ""

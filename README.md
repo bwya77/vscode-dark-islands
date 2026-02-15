@@ -74,10 +74,10 @@ The scripts will automatically:
 - ✅ Install the Islands Dark theme extension
 - ✅ Install the Custom UI Style extension
 - ✅ Install Bear Sans UI fonts
-- ✅ Merge settings into your VS Code: configuration
-- ✅ Enable Custom UI Style and reload VS Code:
+- ✅ Merge settings into your VS Code configuration
+- ✅ Enable Custom UI Style and reload VS Code
 
-> **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you).
+> **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you). The installer also works with VS Code Insiders.
 
 ### Manual Installation
 
@@ -104,6 +104,8 @@ New-Item -ItemType Directory -Path $ext -Force
 Copy-Item package.json $ext\
 Copy-Item themes $ext\themes -Recurse
 ```
+
+> For VS Code Insiders, use `~/.vscode-insiders/extensions` or `%USERPROFILE%\.vscode-insiders\extensions` instead.
 
 #### Step 2: Install the Custom UI Style extension
 
