@@ -115,7 +115,8 @@
     "tab.unfocusedActiveForeground": "#7a7e85",
     "tab.unfocusedInactiveBackground": "#161619",
     "tab.unfocusedInactiveForeground": "#6f737a",
-    "tab.hoverBackground": "#25282c",
+    "tab.hoverBackground": "#161619",
+    "tab.hoverForeground": "#b0b2b8",
     "tab.lastPinnedBorder": "#2b2d30",
 
     "editor.background": "#181a1d",

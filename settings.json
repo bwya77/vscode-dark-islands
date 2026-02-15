@@ -109,17 +109,22 @@
    ".tab": {
       "margin": "0 !important",
       "border-right": "none !important",
+      "border-radius": "6px 6px 0 0 !important",
       "font-family": "'Bear Sans UI', sans-serif !important"
    },
    ".tab .tab-actions .action-label": {
       "border-radius": "50% !important"
    },
    ".tab.active": {
-      "box-shadow": "inset -1px 0 0 0 #25262a !important",
+      "box-shadow": "inset -1px 0 0 0 #25262a, inset 1px 0 0 0 #25262a !important",
       "border-right": "none !important"
    },
    ".tab:not(.active)": {
       "box-shadow": "inset 0 -1px 0 0 #25262a !important"
+   },
+   ".tab:hover .label-name": {
+      "text-shadow": "0 0 5px rgba(255,255,255,0.15) !important",
+      "transition": "text-shadow 0.3s ease !important"
    },
    ".monaco-breadcrumbs": {
       "border-top": "none !important"
