@@ -458,4 +458,8 @@
    }
   },
   "workbench.iconTheme": "vs-seti-folder"
+  "workbench.colorCustomizations": {
+  "activityBar.border": "#00000000",
+  "sideBar.border": "#00000000"
+  }
 }
