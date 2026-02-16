@@ -1,12 +1,120 @@
 # Islands Dark Theme Installer for Windows
+# Run with -CheckUpdate to only check for updates without installing
+# Run with -Force to reinstall even if on latest version
 
-param()
+param(
+    [switch]$CheckUpdate,
+    [switch]$Force
+)
 
 $ErrorActionPreference = "Stop"
+
+# Version information
+$SCRIPT_VERSION = "1.0.0"
+$EXTENSION_ID = "bwya77.islands-dark"
 
 Write-Host "Islands Dark Theme Installer for Windows" -ForegroundColor Cyan
 Write-Host "================================================" -ForegroundColor Cyan
 Write-Host ""
+
+# Get the directory where this script is located
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+# Read the version from package.json in the repo
+$repoPackageJsonPath = Join-Path $scriptDir "package.json"
+$REPO_VERSION = $SCRIPT_VERSION
+if (Test-Path $repoPackageJsonPath) {
+    try {
+        $repoPackageJson = Get-Content $repoPackageJsonPath -Raw | ConvertFrom-Json
+        $REPO_VERSION = $repoPackageJson.version
+    } catch {
+        Write-Host "Warning: Could not read version from package.json" -ForegroundColor Yellow
+    }
+}
+
+# Function to check current installed version
+function Get-InstalledVersion {
+    $extDir = "$env:USERPROFILE\.vscode\extensions\${EXTENSION_ID}-${REPO_VERSION}"
+    $genericExtDir = "$env:USERPROFILE\.vscode\extensions\${EXTENSION_ID}-*"
+    
+    # Check for exact version match first
+    if (Test-Path $extDir) {
+        $packagePath = Join-Path $extDir "package.json"
+        if (Test-Path $packagePath) {
+            try {
+                $installedPackage = Get-Content $packagePath -Raw | ConvertFrom-Json
+                return $installedPackage.version
+            } catch {
+                return $null
+            }
+        }
+    }
+    
+    # Check for any version of the extension
+    $foundDirs = Get-ChildItem -Path $genericExtDir -Directory -ErrorAction SilentlyContinue
+    if ($foundDirs) {
+        # Get the most recently modified extension directory
+        $latestDir = $foundDirs | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        $packagePath = Join-Path $latestDir.FullName "package.json"
+        if (Test-Path $packagePath) {
+            try {
+                $installedPackage = Get-Content $packagePath -Raw | ConvertFrom-Json
+                return $installedPackage.version
+            } catch {
+                return $null
+            }
+        }
+    }
+    
+    return $null
+}
+
+# Check current version
+$installedVersion = Get-InstalledVersion
+
+# Display version information
+Write-Host "Repository version: $REPO_VERSION" -ForegroundColor Cyan
+if ($installedVersion) {
+    Write-Host "Installed version:  $installedVersion" -ForegroundColor Cyan
+} else {
+    Write-Host "Installed version:  Not installed" -ForegroundColor Yellow
+}
+Write-Host ""
+
+# Check update mode - just display status and exit
+if ($CheckUpdate) {
+    if (-not $installedVersion) {
+        Write-Host "Islands Dark is not installed." -ForegroundColor Yellow
+        Write-Host "Run without -CheckUpdate to install." -ForegroundColor Gray
+        exit 0
+    }
+    
+    if ($installedVersion -eq $REPO_VERSION) {
+        Write-Host "You have the latest version ($REPO_VERSION) installed!" -ForegroundColor Green
+        exit 0
+    } else {
+        Write-Host "Update available: $installedVersion -> $REPO_VERSION" -ForegroundColor Yellow
+        Write-Host "Run without -CheckUpdate to update." -ForegroundColor Gray
+        exit 0
+    }
+}
+
+# Check if we should proceed with installation
+if ($installedVersion -eq $REPO_VERSION -and -not $Force) {
+    Write-Host "Islands Dark version $REPO_VERSION is already installed." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Options:" -ForegroundColor Cyan
+    Write-Host "  • Run with -Force to reinstall anyway" -ForegroundColor Gray
+    Write-Host "  • Run with -CheckUpdate to just check for updates" -ForegroundColor Gray
+    Write-Host ""
+    
+    $response = Read-Host "Do you want to reinstall anyway? (y/N)"
+    if ($response -ne 'y' -and $response -ne 'Y') {
+        Write-Host "Installation cancelled." -ForegroundColor Yellow
+        exit 0
+    }
+    Write-Host ""
+}
 
 # Check if VS Code: is installed
 $codePath = Get-Command "code" -ErrorAction SilentlyContinue
@@ -40,14 +148,22 @@ if (-not $codePath) {
 
 Write-Host "VS Code: CLI found" -ForegroundColor Green
 
-# Get the directory where this script is located
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-
 Write-Host ""
 Write-Host "Step 1: Installing Islands Dark theme extension..."
 
 # Install by copying to VS Code: extensions directory
-$extDir = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
+$extDir = "$env:USERPROFILE\.vscode\extensions\${EXTENSION_ID}-${REPO_VERSION}"
+
+# Remove old versions of the extension
+$oldExtDirs = Get-ChildItem -Path "$env:USERPROFILE\.vscode\extensions\${EXTENSION_ID}-*" -Directory -ErrorAction SilentlyContinue
+foreach ($oldDir in $oldExtDirs) {
+    if ($oldDir.Name -ne "${EXTENSION_ID}-${REPO_VERSION}") {
+        Write-Host "  Removing old version: $($oldDir.Name)" -ForegroundColor DarkGray
+        Remove-Item -Recurse -Force $oldDir.FullName -ErrorAction SilentlyContinue
+    }
+}
+
+# Install new version
 if (Test-Path $extDir) {
     Remove-Item -Recurse -Force $extDir
 }
