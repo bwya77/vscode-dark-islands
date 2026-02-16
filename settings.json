@@ -13,7 +13,7 @@
    },
    ".part.sidebar": {
       "font-family": "'Bear Sans UI', sans-serif !important",
-      "margin": "8px 8px 0 20px",
+      "margin": "8px 0 0 20px",
       "border-radius": "24px !important",
       "overflow": "hidden !important",
       "max-height": "calc(100% - 8px) !important",
@@ -99,7 +99,7 @@
       "outline": "none !important"
    },
     ".part.editor": {
-       "margin": "8px 8px 0 8px",
+       "margin": "8px 8px 0 20px",
       "border-radius": "24px !important",
       "overflow": "hidden !important",
       "max-height": "calc(100% - 16px) !important",
@@ -292,13 +292,16 @@
       "align-items": "center !important",
       "justify-content": "center !important",
       "width": "100% !important",
-      "overflow": "visible !important"
+      "overflow": "visible !important",
+      "gap": "6px !important"
    },
    ".part.activitybar .action-item": {
       "display": "flex !important",
       "justify-content": "center !important",
       "width": "100% !important",
-      "overflow": "visible !important"
+      "overflow": "visible !important",
+      "margin-top": "4px !important",
+      "margin-bottom": "4px !important"
    },
    ".part.activitybar .badge": {
       "z-index": "10 !important",
