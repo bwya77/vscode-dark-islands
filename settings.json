@@ -246,7 +246,11 @@
        "background": "#121216 !important",
        "margin": "8px 20px 30px 12px",
       "width": "48px !important",
-      "min-width": "48px !important"
+      "min-width": "48px !important",
+      "border": "none !important"
+   },
+   ".monaco-sash": {
+      "background-color": "transparent !important"
    },
    ".part.activitybar .composite-bar": {
       "background": "#151518 !important",
