@@ -1,4 +1,8 @@
 {
+  "workbench.colorCustomizations": {
+    "activityBar.border": "#00000000",
+    "sideBar.border": "#00000000"
+  },
   "workbench.colorTheme": "Islands Dark",
   "editor.fontFamily": "IBM Plex Mono",
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
@@ -13,10 +17,10 @@
    },
    ".part.sidebar": {
       "font-family": "'Bear Sans UI', sans-serif !important",
-      "margin": "8px 8px 0 20px",
+      "margin": "8px 8px 8px 20px",
       "border-radius": "24px !important",
       "overflow": "hidden !important",
-      "max-height": "calc(100% - 8px) !important",
+      "max-height": "calc(100% - 16px) !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
@@ -99,7 +103,7 @@
       "outline": "none !important"
    },
     ".part.editor": {
-       "margin": "8px 8px 0 8px",
+       "margin": "8px 8px 8px 8px",
       "border-radius": "24px !important",
       "overflow": "hidden !important",
       "max-height": "calc(100% - 16px) !important",
@@ -218,8 +222,10 @@
       "border-radius": "9999px !important"
    },
    ".part.panel.bottom": {
-      "margin": "0 8px",
-      "border-radius": "14px",
+      "margin": "8px 8px 8px 8px",
+      "border-radius": "24px !important",
+      "overflow": "clip !important",
+      "max-height": "calc(100% - 16px) !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
