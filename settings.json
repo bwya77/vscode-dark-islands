@@ -34,9 +34,10 @@
       "letter-spacing": "1px !important"
     },
     ".part.sidebar .content": {
-      "width": "calc(100% - 20px) !important",
+      "width": "calc(100% - 6px) !important",
       "padding-left": "10px !important",
-      "margin-left": "6px !important"
+      "margin-left": "6px !important",
+      "padding-right": "10px !important"
     },
     ".part.sidebar .welcome-view-content": {
       "max-width": "100% !important",
@@ -99,15 +100,18 @@
       "outline": "none !important"
     },
     ".part.editor": {
-      "margin": "4px 8px 0 8px",
+      "margin": "4px 8px 8px 8px",
       "border-radius": "12px !important",
       "overflow": "hidden !important",
-      "max-height": "calc(100% - 4px) !important",
+      "max-height": "calc(100% - 12px) !important",
       "border-top": "1px solid rgba(255,255,255,0.12) !important",
       "border-left": "1px solid rgba(255,255,255,0.08) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.03) !important",
       "border-right": "1px solid rgba(255,255,255,0.03) !important",
       "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
+    },
+    ".nosidebar .part.editor": {
+      "margin-left": "8px !important"
     },
     ".editor-actions": {
       "padding-right": "20px !important",
