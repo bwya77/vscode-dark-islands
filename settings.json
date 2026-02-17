@@ -58,14 +58,6 @@
    ".part.sidebar .pane-header .title": {
       "font-size": "10px !important"
    },
-   ".explorer-folders-view .monaco-list-rows": {
-      "transform": "translate3d(0px, 0px, 0px) scaleY(1.15) !important",
-      "transform-origin": "top left !important"
-   },
-   ".explorer-folders-view .monaco-tl-row": {
-      "transform": "scaleY(0.87) !important",
-      "transform-origin": "top left !important"
-   },
    ".part.sidebar .monaco-list-row": {
       "border-radius": "6px !important",
       "margin-left": "4px !important",
