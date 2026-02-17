@@ -590,7 +590,7 @@
     ".part.auxiliarybar .interactive-input-part": {
       "width": "calc(100% - 24px) !important",
       "max-width": "calc(100% - 24px) !important",
-      "margin": "0 12px !important",
+      "margin": "0 12px 12px 12px !important",
       "box-sizing": "border-box !important"
     },
     ".part.auxiliarybar .interactive-input-part .monaco-editor": {
@@ -600,7 +600,8 @@
     ".part.auxiliarybar .interactive-input-and-side-toolbar": {
       "width": "100% !important",
       "max-width": "100% !important",
-      "box-sizing": "border-box !important"
+      "box-sizing": "border-box !important",
+      "padding-bottom": "12px !important"
     },
     ".part.auxiliarybar .header": {
       "padding-left": "12px !important"
