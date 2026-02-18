@@ -58,14 +58,6 @@
    ".part.sidebar .pane-header .title": {
       "font-size": "10px !important"
    },
-   ".explorer-folders-view .monaco-list-rows": {
-      "transform": "translate3d(0px, 0px, 0px) scaleY(1.15) !important",
-      "transform-origin": "top left !important"
-   },
-   ".explorer-folders-view .monaco-tl-row": {
-      "transform": "scaleY(0.87) !important",
-      "transform-origin": "top left !important"
-   },
    ".part.sidebar .monaco-list-row": {
       "border-radius": "6px !important",
       "margin-left": "4px !important",
@@ -165,14 +157,6 @@
    },
    ".monaco-breadcrumbs:hover *": {
       "opacity": "1 !important"
-   },
-   ".split-view-view:has(.terminal-tabs-entry)": {
-      "min-width": "220px !important"
-   },
-   ".split-view-view:has(.terminal-tabs-entry) .monaco-list-row": {
-      "border-radius": "6px !important",
-      "margin-right": "20px !important",
-      "width": "calc(100% - 20px) !important"
    },
    ".viewpane-filter .monaco-inputbox": {
       "border-radius": "9999px !important"
