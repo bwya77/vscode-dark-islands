@@ -34,7 +34,7 @@
       "letter-spacing": "1px !important"
     },
     ".part.sidebar .content": {
-      "width": "calc(100% - 6px) !important",
+      "width": "calc(100% - 26px) !important",
       "padding-left": "10px !important",
       "margin-left": "6px !important",
       "padding-right": "10px !important"
@@ -45,10 +45,22 @@
     },
     ".part.sidebar .pane-header": {
       "border-radius": "6px !important",
-      "outline-offset": "-1px !important"
+      "outline-offset": "-1px !important",
+      "border-bottom": "1px solid #2b2d30 !important"
+    },
+    ".part.sidebar .pane-header.expanded": {
+      "border-bottom": "none !important"
     },
     ".explorer-viewlet .split-view-container": {
       "transform": "translateY(-22px) !important"
+    },
+    ".scm-viewlet .monaco-list": {
+      "max-height": "30vh !important",
+      "overflow": "auto !important"
+    },
+    ".scm-viewlet .pane-body": {
+      "overflow": "visible !important",
+      "margin-bottom": "8px !important"
     },
     ".part.sidebar .header": {
       "padding-right": "20px !important"
@@ -100,9 +112,8 @@
       "outline": "none !important"
     },
     ".part.editor": {
-      "margin": "4px 8px 8px 8px",
+      "margin": "4px 4px 8px 4px",
       "border-radius": "12px !important",
-      "overflow": "hidden !important",
       "max-height": "calc(100% - 12px) !important",
       "border-top": "1px solid rgba(255,255,255,0.12) !important",
       "border-left": "1px solid rgba(255,255,255,0.08) !important",
@@ -110,8 +121,12 @@
       "border-right": "1px solid rgba(255,255,255,0.03) !important",
       "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
     },
+    ".part.editor > .content": {
+      "border-radius": "12px !important",
+      "overflow": "hidden !important"
+    },
     ".nosidebar .part.editor": {
-      "margin-left": "8px !important"
+      "margin-left": "20px !important"
     },
     ".editor-actions": {
       "padding-right": "20px !important",
@@ -205,18 +220,33 @@
       "visibility": "visible !important"
     },
     ".viewpane-filter .monaco-inputbox": {
-      "border-radius": "9999px !important"
+      "border-radius": "12px !important"
+    },
+    ".search-widget": {
+      "overflow": "visible !important",
+      "position": "relative !important"
     },
     ".search-widget .monaco-inputbox": {
-      "border-radius": "9999px !important"
+      "border-radius": "12px !important"
+    },
+    ".search-widget .replace-input": {
+      "position": "relative !important",
+      "margin-top": "4px !important"
     },
     ".search-widget .replace-input .monaco-findInput": {
-      "width": "100% !important",
-      "height": "26px !important"
+      "width": "100% !important"
+    },
+    ".search-widget .search-container": {
+      "position": "relative !important"
     },
     ".search-widget .search-container .monaco-findInput": {
-      "width": "100% !important",
-      "height": "26px !important"
+      "width": "100% !important"
+    },
+    ".search-view .search-widget": {
+      "overflow": "visible !important"
+    },
+    ".search-view": {
+      "overflow": "visible !important"
     },
     ".results.show-file-icons": {
       "margin-bottom": "22px !important"
@@ -225,7 +255,7 @@
       "transform": "translateX(-6px) !important"
     },
     ".extensions-search-container .suggest-input-container": {
-      "border-radius": "9999px !important",
+      "border-radius": "12px !important",
       "overflow": "hidden !important",
       "font-size": "11px !important",
       "--editor-font-size": "11px !important"
@@ -234,13 +264,13 @@
       "font-size": "11px !important"
     },
     ".scm-editor": {
-      "border-radius": "9999px !important"
+      "border-radius": "12px !important"
     },
     ".scm-input": {
-      "border-radius": "9999px !important"
+      "border-radius": "12px !important"
     },
     ".scm-input + .scm-editor-toolbar + .monaco-button": {
-      "border-radius": "9999px !important"
+      "border-radius": "12px !important"
     },
     ".part.sidebar .monaco-button": {
       "border-radius": "9999px !important",
@@ -572,6 +602,9 @@
     },
     ".part.auxiliarybar .composite.title": {
       "padding": "8px 12px 0 12px !important"
+    },
+    ".part.auxiliarybar .interactive-list": {
+      "padding-bottom": "10px !important"
     },
     ".part.auxiliarybar .content": {
       "width": "100% !important",
