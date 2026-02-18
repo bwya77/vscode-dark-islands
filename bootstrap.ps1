@@ -10,6 +10,7 @@ echo "=========================================="
 echo ""
 
 $RepoUrl = "https://github.com/bwya77/vscode-dark-islands.git"
+$Branch = "main"
 $InstallDir = "$env:TEMP\islands-dark-temp"
 
 echo "📥 Step 1: Downloading Islands Dark..."
@@ -22,7 +23,7 @@ if (Test-Path $InstallDir) {
 
 # Clone repository
 try {
-    git clone $RepoUrl $InstallDir --quiet
+    git clone $RepoUrl $InstallDir --quiet --branch $Branch
 } catch {
     echo "❌ Failed to download Islands Dark"
     echo "   Make sure Git is installed: https://git-scm.com/download/win"

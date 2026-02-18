@@ -62,6 +62,39 @@ if (Test-Path "$extDir\themes") {
     exit 1
 }
 
+# Register extension in extensions.json so VS Code discovers it
+$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
+try {
+    $extensions = @()
+    if (Test-Path $extJsonPath) {
+        $extensions = Get-Content $extJsonPath -Raw | ConvertFrom-Json
+    }
+
+    # Remove any existing Islands Dark entry
+    $extensions = @($extensions | Where-Object {
+        $_.identifier.id -ne 'bwya77.islands-dark' -and
+        $_.identifier.id -ne 'your-publisher-name.islands-dark'
+    })
+
+    # Add new entry
+    $newEntry = [PSCustomObject]@{
+        identifier = [PSCustomObject]@{ id = 'bwya77.islands-dark' }
+        version = '1.0.0'
+        location = [PSCustomObject]@{
+            '$mid' = 1
+            path = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
+            scheme = 'file'
+        }
+        relativeLocation = 'bwya77.islands-dark-1.0.0'
+    }
+    $extensions += $newEntry
+
+    $extensions | ConvertTo-Json -Depth 10 -Compress | Set-Content $extJsonPath
+    Write-Host "Extension registered" -ForegroundColor Green
+} catch {
+    Write-Host "Could not register extension automatically" -ForegroundColor Yellow
+}
+
 Write-Host ""
 Write-Host "Step 2: Installing Custom UI Style extension..."
 try {
@@ -108,63 +141,18 @@ if (-not (Test-Path $settingsDir)) {
 
 $settingsFile = Join-Path $settingsDir "settings.json"
 
-# Function to strip JSONC features (comments and trailing commas) for JSON parsing
-function Strip-Jsonc {
-    param([string]$Text)
-    # Remove single-line comments
-    $Text = $Text -replace '//.*$', ''
-    # Remove multi-line comments
-    $Text = $Text -replace '/\*[\s\S]*?\*/', ''
-    # Remove trailing commas before } or ]
-    $Text = $Text -replace ',\s*([}\]])', '$1'
-    return $Text
-}
-
-$newSettingsRaw = Get-Content "$scriptDir\settings.json" -Raw
-$newSettings = (Strip-Jsonc $newSettingsRaw) | ConvertFrom-Json
-
+# Backup existing settings if they exist
 if (Test-Path $settingsFile) {
-    Write-Host "Existing settings.json found" -ForegroundColor Yellow
-    Write-Host "   Backing up to settings.json.backup"
-    Copy-Item $settingsFile "$settingsFile.backup" -Force
-
-    try {
-        $existingRaw = Get-Content $settingsFile -Raw
-        $existingSettings = (Strip-Jsonc $existingRaw) | ConvertFrom-Json
-
-        # Merge settings - Islands Dark settings take precedence
-        $mergedSettings = @{}
-        $existingSettings.PSObject.Properties | ForEach-Object {
-            $mergedSettings[$_.Name] = $_.Value
-        }
-        $newSettings.PSObject.Properties | ForEach-Object {
-            $mergedSettings[$_.Name] = $_.Value
-        }
-
-        # Deep merge custom-ui-style.stylesheet
-        $stylesheetKey = 'custom-ui-style.stylesheet'
-        if ($existingSettings.$stylesheetKey -and $newSettings.$stylesheetKey) {
-            $mergedStylesheet = @{}
-            $existingSettings.$stylesheetKey.PSObject.Properties | ForEach-Object {
-                $mergedStylesheet[$_.Name] = $_.Value
-            }
-            $newSettings.$stylesheetKey.PSObject.Properties | ForEach-Object {
-                $mergedStylesheet[$_.Name] = $_.Value
-            }
-            $mergedSettings[$stylesheetKey] = [PSCustomObject]$mergedStylesheet
-        }
-
-        [PSCustomObject]$mergedSettings | ConvertTo-Json -Depth 100 | Set-Content $settingsFile
-        Write-Host "Settings merged successfully" -ForegroundColor Green
-    } catch {
-        Write-Host "Could not merge settings automatically" -ForegroundColor Yellow
-        Write-Host "   Please manually merge settings.json from this repo into your VS Code settings"
-        Write-Host "   Your original settings have been backed up to settings.json.backup"
-    }
-} else {
-    Copy-Item "$scriptDir\settings.json" $settingsFile
-    Write-Host "Settings applied" -ForegroundColor Green
+    $backupFile = "$settingsFile.pre-islands-dark"
+    Copy-Item $settingsFile $backupFile -Force
+    Write-Host "Existing settings.json backed up to:" -ForegroundColor Yellow
+    Write-Host "   $backupFile"
+    Write-Host "   You can restore your old settings from this file if needed."
 }
+
+# Copy Islands Dark settings
+Copy-Item "$scriptDir\settings.json" $settingsFile -Force
+Write-Host "Islands Dark settings applied" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "Step 5: Enabling Custom UI Style..."

@@ -53,6 +53,46 @@ else
     exit 1
 fi
 
+# Register extension in extensions.json so VS Code discovers it
+EXT_JSON="$HOME/.vscode/extensions/extensions.json"
+if command -v node &> /dev/null; then
+    node << 'REGISTER_SCRIPT'
+const fs = require('fs');
+const path = require('path');
+
+const extJsonPath = path.join(process.env.HOME, '.vscode', 'extensions', 'extensions.json');
+let extensions = [];
+if (fs.existsSync(extJsonPath)) {
+    try {
+        extensions = JSON.parse(fs.readFileSync(extJsonPath, 'utf8'));
+    } catch (e) {
+        extensions = [];
+    }
+}
+
+// Remove any existing Islands Dark entry
+extensions = extensions.filter(e =>
+    e.identifier?.id !== 'bwya77.islands-dark' &&
+    e.identifier?.id !== 'your-publisher-name.islands-dark'
+);
+
+// Add new entry
+extensions.push({
+    identifier: { id: 'bwya77.islands-dark' },
+    version: '1.0.0',
+    location: {
+        '$mid': 1,
+        path: path.join(process.env.HOME, '.vscode', 'extensions', 'bwya77.islands-dark-1.0.0'),
+        scheme: 'file'
+    },
+    relativeLocation: 'bwya77.islands-dark-1.0.0'
+});
+
+fs.writeFileSync(extJsonPath, JSON.stringify(extensions));
+REGISTER_SCRIPT
+    echo -e "${GREEN}✓ Extension registered${NC}"
+fi
+
 echo ""
 echo "🔧 Step 2: Installing Custom UI Style extension..."
 if "$CODE_CMD" --install-extension subframe7536.custom-ui-style --force; then
@@ -97,66 +137,18 @@ fi
 mkdir -p "$SETTINGS_DIR"
 SETTINGS_FILE="$SETTINGS_DIR/settings.json"
 
-# Check if settings.json exists
+# Backup existing settings if they exist
 if [ -f "$SETTINGS_FILE" ]; then
-    echo -e "${YELLOW}⚠️  Existing settings.json found${NC}"
-    echo "   Backing up to settings.json.backup"
-    cp "$SETTINGS_FILE" "$SETTINGS_FILE.backup"
-
-    # Read the existing settings and merge
-    echo "   Merging Islands Dark settings with your existing settings..."
-
-    # Create a temporary file with the merge logic using node.js if available
-    if command -v node &> /dev/null; then
-        ISLANDS_SETTINGS_DIR="$SETTINGS_DIR" node << 'NODE_SCRIPT'
-const fs = require('fs');
-const path = require('path');
-
-// Strip JSONC features (comments and trailing commas) for JSON.parse
-function stripJsonc(text) {
-    // Remove single-line comments (but not // inside strings)
-    text = text.replace(/\/\/(?=(?:[^"\\]|\\.)*$)/gm, '');
-    // Remove multi-line comments
-    text = text.replace(/\/\*[\s\S]*?\*\//g, '');
-    // Remove trailing commas before } or ]
-    text = text.replace(/,\s*([}\]])/g, '$1');
-    return text;
-}
-
-const scriptDir = process.cwd();
-const newSettings = JSON.parse(stripJsonc(fs.readFileSync(path.join(scriptDir, 'settings.json'), 'utf8')));
-
-// Settings dir passed from shell to avoid duplicating platform/CLI logic
-const settingsDir = process.env.ISLANDS_SETTINGS_DIR;
-
-const settingsFile = path.join(settingsDir, 'settings.json');
-const existingText = fs.readFileSync(settingsFile, 'utf8');
-const existingSettings = JSON.parse(stripJsonc(existingText));
-
-// Merge settings - Islands Dark settings take precedence
-const mergedSettings = { ...existingSettings, ...newSettings };
-
-// Deep merge custom-ui-style.stylesheet
-const stylesheetKey = 'custom-ui-style.stylesheet';
-if (existingSettings[stylesheetKey] && newSettings[stylesheetKey]) {
-    mergedSettings[stylesheetKey] = {
-        ...existingSettings[stylesheetKey],
-        ...newSettings[stylesheetKey]
-    };
-}
-
-fs.writeFileSync(settingsFile, JSON.stringify(mergedSettings, null, 2));
-console.log('Settings merged successfully');
-NODE_SCRIPT
-    else
-        echo -e "${YELLOW}   Node.js not found. Please manually merge settings.json from this repo into your VS Code settings.${NC}"
-        echo "   Your original settings have been backed up to settings.json.backup"
-    fi
-else
-    # No existing settings, just copy
-    cp "$SCRIPT_DIR/settings.json" "$SETTINGS_FILE"
-    echo -e "${GREEN}✓ Settings applied${NC}"
+    BACKUP_FILE="$SETTINGS_FILE.pre-islands-dark"
+    cp "$SETTINGS_FILE" "$BACKUP_FILE"
+    echo -e "${YELLOW}⚠️  Existing settings.json backed up to:${NC}"
+    echo "   $BACKUP_FILE"
+    echo "   You can restore your old settings from this file if needed."
 fi
+
+# Copy Islands Dark settings
+cp "$SCRIPT_DIR/settings.json" "$SETTINGS_FILE"
+echo -e "${GREEN}✓ Islands Dark settings applied${NC}"
 
 echo ""
 echo "🚀 Step 5: Enabling Custom UI Style..."

@@ -8,9 +8,12 @@
 </a>
 
 
-## **THIS THEME IS STILL A WORK IN PROGRESS**
+A dark color theme for Visual Studio Code inspired by the easemate IDE. Features floating glass-like panels, rounded corners, smooth animations, and a deeply refined UI.
 
-A dark color theme for Visual Studio Code inspired by JetBrains' Islands Dark theme. Features floating glass-like panels, rounded corners, smooth animations, and a deeply refined UI.
+- [easemate](https://x.com/easemate)
+- [easemate Nav](https://x.com/Jakubantalik/status/1952672176450215944)
+- [easemate effects](https://x.com/aaroniker/status/1989727838992539655)
+
 
 ![Islands Dark Screenshot](assets/CleanShot%202026-02-14%20at%2021.47.05@2x.png)
 
@@ -74,8 +77,8 @@ The scripts will automatically:
 - ✅ Install the Islands Dark theme extension
 - ✅ Install the Custom UI Style extension
 - ✅ Install Bear Sans UI fonts
-- ✅ Merge settings into your VS Code: configuration
-- ✅ Enable Custom UI Style and reload VS Code:
+- ✅ Back up your existing settings and apply Islands Dark settings
+- ✅ Enable Custom UI Style and reload VS Code
 
 > **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you).
 
@@ -187,6 +190,40 @@ This is expected after enabling Custom UI Style. Dismiss it or select **Don't Sh
 
 ### Previously used "Custom CSS and JS Loader" extension
 If you previously used the **Custom CSS and JS Loader** extension (`be5invis.vscode-custom-css`), it may have injected CSS directly into VS Code's `workbench.html` that persists even after disabling. If styles conflict, reinstall VS Code to get a clean `workbench.html`, then use only **Custom UI Style**.
+
+## Uninstalling
+
+Run the uninstall script to restore your VS Code to its previous state:
+
+**macOS/Linux:**
+```bash
+# If you still have the repo cloned:
+cd islands-dark
+./uninstall.sh
+
+# Or download and run directly:
+curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+# If you still have the repo cloned:
+cd islands-dark
+.\uninstall.ps1
+
+# Or download and run directly:
+irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.ps1 | iex
+```
+
+The uninstall script will:
+- Restore your previous settings from the `settings.json.pre-islands-dark` backup
+- Remove the Islands Dark theme extension
+- Unregister the extension from VS Code
+
+After running the script, you'll need to:
+1. Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **Custom UI Style: Disable**
+2. Open **Command Palette** and search **Preferences: Color Theme** to select a new theme
+3. Reload VS Code
 
 ## Credits
 
