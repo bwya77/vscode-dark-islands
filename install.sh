@@ -12,18 +12,22 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Check if code command is available
-if ! command -v code &> /dev/null; then
-    echo -e "${RED}❌ Error: VS Code CLI (code) not found!${NC}"
-    echo "Please install VS Code and make sure 'code' command is in your PATH."
-    echo "You can do this by:"
+# Detect available VS Code CLI: prefer code-server, fall back to code
+if command -v code-server &> /dev/null; then
+    CODE_CMD="code-server"
+    echo -e "${GREEN}✓ code-server CLI found${NC}"
+elif command -v code &> /dev/null; then
+    CODE_CMD="code"
+    echo -e "${GREEN}✓ VS Code CLI (code) found${NC}"
+else
+    echo -e "${RED}❌ Error: No VS Code CLI found (tried: code-server, code)!${NC}"
+    echo "Please install VS Code or code-server and make sure the command is in your PATH."
+    echo "For VS Code you can add it by:"
     echo "  1. Open VS Code"
     echo "  2. Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Linux)"
     echo "  3. Type 'Shell Command: Install code command in PATH'"
     exit 1
 fi
-
-echo -e "${GREEN}✓ VS Code CLI found${NC}"
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -31,8 +35,12 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo ""
 echo "📦 Step 1: Installing Islands Dark theme extension..."
 
-# Install by copying to VS Code extensions directory
-EXT_DIR="$HOME/.vscode/extensions/bwya77.islands-dark-1.0.0"
+# Install by copying to the appropriate VS Code extensions directory
+if [ "$CODE_CMD" = "code-server" ]; then
+    EXT_DIR="$HOME/.local/share/code-server/extensions/bwya77.islands-dark-1.0.0"
+else
+    EXT_DIR="$HOME/.vscode/extensions/bwya77.islands-dark-1.0.0"
+fi
 rm -rf "$EXT_DIR"
 mkdir -p "$EXT_DIR"
 cp "$SCRIPT_DIR/package.json" "$EXT_DIR/"
@@ -47,7 +55,7 @@ fi
 
 echo ""
 echo "🔧 Step 2: Installing Custom UI Style extension..."
-if code --install-extension subframe7536.custom-ui-style --force; then
+if "$CODE_CMD" --install-extension subframe7536.custom-ui-style --force; then
     echo -e "${GREEN}✓ Custom UI Style extension installed${NC}"
 else
     echo -e "${YELLOW}⚠️  Could not install Custom UI Style extension automatically${NC}"
@@ -78,9 +86,12 @@ fi
 
 echo ""
 echo "⚙️  Step 4: Applying VS Code settings..."
-SETTINGS_DIR="$HOME/.config/Code/User"
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [ "$CODE_CMD" = "code-server" ]; then
+    SETTINGS_DIR="$HOME/.local/share/code-server/User"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
     SETTINGS_DIR="$HOME/Library/Application Support/Code/User"
+else
+    SETTINGS_DIR="$HOME/.config/Code/User"
 fi
 
 mkdir -p "$SETTINGS_DIR"
@@ -97,7 +108,7 @@ if [ -f "$SETTINGS_FILE" ]; then
 
     # Create a temporary file with the merge logic using node.js if available
     if command -v node &> /dev/null; then
-        node << 'NODE_SCRIPT'
+        ISLANDS_SETTINGS_DIR="$SETTINGS_DIR" node << 'NODE_SCRIPT'
 const fs = require('fs');
 const path = require('path');
 
@@ -115,12 +126,8 @@ function stripJsonc(text) {
 const scriptDir = process.cwd();
 const newSettings = JSON.parse(stripJsonc(fs.readFileSync(path.join(scriptDir, 'settings.json'), 'utf8')));
 
-let settingsDir;
-if (process.platform === 'darwin') {
-    settingsDir = path.join(process.env.HOME, 'Library/Application Support/Code/User');
-} else {
-    settingsDir = path.join(process.env.HOME, '.config/Code/User');
-}
+// Settings dir passed from shell to avoid duplicating platform/CLI logic
+const settingsDir = process.env.ISLANDS_SETTINGS_DIR;
 
 const settingsFile = path.join(settingsDir, 'settings.json');
 const existingText = fs.readFileSync(settingsFile, 'utf8');
@@ -186,7 +193,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 echo "   Reloading VS Code..."
-code --reload-window 2>/dev/null || code . 2>/dev/null || true
+"$CODE_CMD" --reload-window 2>/dev/null || "$CODE_CMD" . 2>/dev/null || true
 
 echo ""
 echo -e "${GREEN}Done! 🏝️${NC}"
