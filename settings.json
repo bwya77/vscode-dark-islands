@@ -1,20 +1,28 @@
 {
+  "// Islands Dark Settings v0.0.2": "",
   "workbench.colorTheme": "Islands Dark",
   "editor.fontFamily": "IBM Plex Mono",
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
-  "custom-ui-style.font.monospace": "IBM Plex Mono",
   "editor.lineHeight": 1.8,
   "workbench.tree.indent": 16,
   "workbench.tree.renderIndentGuides": "always",
   "editor.minimap.showSlider": "always",
   "custom-ui-style.stylesheet": {
    ".monaco-workbench": {
-      "background-color": "#121216 !important"
+      "--islands-panel-radius": "24px",
+      "--islands-widget-radius": "14px",
+      "--islands-input-radius": "12px",
+      "--islands-item-radius": "6px",
+      "--islands-panel-gap": "6px",
+      "--islands-panel-top": "6px",
+      "--islands-bg-canvas": "#121216",
+      "--islands-bg-surface": "#181a1d",
+      "background-color": "var(--islands-bg-canvas) !important"
    },
    ".part.sidebar": {
       "font-family": "'Bear Sans UI', sans-serif !important",
-      "margin": "8px 8px 0 20px",
-      "border-radius": "24px !important",
+      "margin": "var(--islands-panel-top) var(--islands-panel-gap) 0 var(--islands-panel-gap)",
+      "border-radius": "var(--islands-panel-radius) !important",
       "overflow": "hidden !important",
       "max-height": "calc(100% - 8px) !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
@@ -43,11 +51,11 @@
       "box-sizing": "border-box !important"
    },
    ".part.sidebar .pane-header": {
-      "border-radius": "6px !important",
+      "border-radius": "var(--islands-item-radius) !important",
       "outline-offset": "-1px !important"
    },
    ".explorer-viewlet .split-view-container": {
-      "transform": "translateY(-22px) !important"
+      "margin-top": "-22px !important"
    },
    ".part.sidebar .header": {
       "padding-right": "20px !important"
@@ -58,22 +66,23 @@
    ".part.sidebar .pane-header .title": {
       "font-size": "10px !important"
    },
-   ".explorer-folders-view .monaco-list-rows": {
-      "transform": "translate3d(0px, 0px, 0px) scaleY(1.15) !important",
-      "transform-origin": "top left !important"
-   },
    ".explorer-folders-view .monaco-tl-row": {
-      "transform": "scaleY(0.87) !important",
-      "transform-origin": "top left !important"
+      "padding-top": "1px !important",
+      "padding-bottom": "1px !important"
    },
    ".part.sidebar .monaco-list-row": {
-      "border-radius": "6px !important",
+      "border-radius": "var(--islands-item-radius) !important",
       "margin-left": "4px !important",
       "margin-right": "4px !important",
       "width": "calc(100% - 8px) !important",
       "transition": "background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important"
    },
-   ".part.sidebar .monaco-list-row.selected, .part.sidebar .monaco-list-row.focused": {
+   ".part.sidebar .monaco-list-row.selected": {
+      "background": "transparent !important",
+      "box-shadow": "none !important",
+      "outline": "none !important"
+   },
+   ".part.sidebar .monaco-list-row.focused": {
       "background": "linear-gradient(135deg, rgba(49,50,56,0.6), rgba(37,38,44,0.4)) !important",
       "box-shadow": "inset 0 0 0 1px rgba(255,255,255,0.05) !important",
       "outline": "none !important"
@@ -83,11 +92,6 @@
       "box-shadow": "inset 0 0 0 1px rgba(255,255,255,0.07) !important",
       "outline": "none !important"
    },
-   ".part.sidebar .monaco-list:focus .monaco-list-row.selected": {
-      "background": "linear-gradient(135deg, rgba(49,50,56,0.8), rgba(37,38,44,0.6)) !important",
-      "box-shadow": "inset 0 0 0 1px rgba(255,255,255,0.08) !important",
-      "outline": "none !important"
-   },
    ".part.sidebar .monaco-list:focus .monaco-list-row.focused": {
       "background": "linear-gradient(135deg, rgba(49,50,56,0.8), rgba(37,38,44,0.6)) !important",
       "box-shadow": "inset 0 0 0 1px rgba(255,255,255,0.08) !important",
@@ -95,14 +99,17 @@
    },
    ".part.sidebar .monaco-list-row:hover": {
       "background": "linear-gradient(135deg, rgba(49,50,56,0.3), rgba(37,38,44,0.2)) !important",
-      "border-radius": "6px !important",
+      "border-radius": "var(--islands-item-radius) !important",
       "outline": "none !important"
    },
+    ".monaco-workbench.linux .part.editor > .content": {
+      "padding-top": "20px !important"
+   },
     ".part.editor": {
-       "margin": "8px 8px 0 8px",
-      "border-radius": "24px !important",
+       "margin": "var(--islands-panel-top) var(--islands-panel-gap) 0 var(--islands-panel-gap)",
+      "border-radius": "var(--islands-panel-radius) !important",
       "overflow": "hidden !important",
-      "max-height": "calc(100% - 16px) !important",
+      "max-height": "calc(100% - var(--islands-panel-top) - 2px) !important",
       "border-top": "1px solid rgba(255,255,255,0.12) !important",
       "border-left": "1px solid rgba(255,255,255,0.08) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.03) !important",
@@ -123,8 +130,10 @@
    ".tab": {
       "margin": "0 !important",
       "border-right": "none !important",
-      "border-radius": "6px 6px 0 0 !important",
-      "font-family": "'Bear Sans UI', sans-serif !important"
+      "border-radius": "var(--islands-item-radius) var(--islands-item-radius) 0 0 !important",
+      "font-family": "'Bear Sans UI', sans-serif !important",
+      "display": "flex !important",
+      "align-items": "center !important"
    },
    ".tab .tab-actions .action-label": {
       "border-radius": "50% !important"
@@ -151,7 +160,7 @@
       "opacity": "1 !important"
    },
    ".monaco-hover": {
-      "border-radius": "12px !important",
+      "border-radius": "var(--islands-input-radius) !important",
       "border": "1px solid rgba(255,255,255,0.08) !important",
       "box-shadow": "0 4px 16px 0 rgba(0,0,0,0.4) !important",
       "overflow": "hidden !important"
@@ -170,15 +179,15 @@
       "min-width": "220px !important"
    },
    ".split-view-view:has(.terminal-tabs-entry) .monaco-list-row": {
-      "border-radius": "6px !important",
+      "border-radius": "var(--islands-item-radius) !important",
       "margin-right": "20px !important",
       "width": "calc(100% - 20px) !important"
    },
    ".viewpane-filter .monaco-inputbox": {
-      "border-radius": "9999px !important"
+      "border-radius": "var(--islands-input-radius) !important"
    },
    ".search-widget .monaco-inputbox": {
-      "border-radius": "9999px !important"
+      "border-radius": "var(--islands-input-radius) !important"
    },
    ".search-widget .replace-input .monaco-findInput": {
       "width": "228px !important",
@@ -195,7 +204,7 @@
       "transform": "translateX(-6px) !important"
    },
    ".extensions-search-container .suggest-input-container": {
-      "border-radius": "9999px !important",
+      "border-radius": "var(--islands-input-radius) !important",
       "overflow": "hidden !important",
       "font-size": "11px !important",
       "--editor-font-size": "11px !important"
@@ -204,27 +213,27 @@
       "font-size": "11px !important"
    },
    ".scm-editor": {
-      "border-radius": "9999px !important",
+      "border-radius": "var(--islands-input-radius) !important",
       "overflow": "hidden !important"
    },
    ".scm-input": {
-      "border-radius": "9999px !important",
+      "border-radius": "var(--islands-input-radius) !important",
       "overflow": "hidden !important"
    },
    ".scm-input + .scm-editor-toolbar + .monaco-button": {
-      "border-radius": "9999px !important"
+      "border-radius": "var(--islands-input-radius) !important"
    },
    ".part.sidebar .monaco-button": {
-      "border-radius": "9999px !important"
+      "border-radius": "var(--islands-input-radius) !important"
    },
    ".part.panel.bottom": {
-      "margin": "0 8px",
-      "border-radius": "14px",
-      "border-top": "1px solid rgba(255,255,255,0.1) !important",
+      "border-radius": "var(--islands-panel-radius)",
+      "overflow": "hidden !important",
+      "border-top": "6px solid var(--islands-bg-canvas) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
       "border-right": "1px solid rgba(255,255,255,0.02) !important",
-      "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
+      "box-shadow": "inset 0 1px 0 0 rgba(255,255,255,0.1), 0 2px 8px 0 rgba(0,0,0,0.3) !important"
    },
    ".part.panel.bottom .message-box-container": {
       "border-radius": "10px !important",
@@ -243,40 +252,47 @@
       "width": "calc(100% - 14px) !important"
    },
     ".part.activitybar": {
-       "background": "#121216 !important",
-       "margin": "8px 20px 30px 12px",
-      "width": "48px !important",
-      "min-width": "48px !important"
+       "background": "var(--islands-bg-canvas) !important",
+       "margin": "8px 0 30px 0",
+      "overflow": "visible !important"
    },
    ".part.activitybar .composite-bar": {
-      "background": "#151518 !important",
+      "background": "color-mix(in srgb, var(--islands-bg-canvas), var(--islands-bg-surface) 30%) !important",
       "border-radius": "9999px",
-      "overflow": "visible !important",
-      "padding": "8px 0",
+      "overflow": "hidden !important",
+      "width": "calc(100% - 8px) !important",
+      "margin-left": "auto !important",
+      "margin-right": "auto !important",
+      "padding": "8px 3px !important",
+      "box-sizing": "border-box !important",
       "display": "flex !important",
       "flex-direction": "column !important",
       "align-items": "center !important",
-      "box-shadow": "inset 0 1px 0 0 rgba(255,255,255,0.1), inset 1px 0 0 0 rgba(255,255,255,0.05), inset 0 -1px 0 0 rgba(255,255,255,0.02), inset -1px 0 0 0 rgba(255,255,255,0.02), inset 0 1px 3px 0 rgba(255,255,255,0.04), 0 1px 4px 0 rgba(0,0,0,0.25) !important"
+      "border-top": "1px solid rgba(255,255,255,0.12) !important",
+      "border-left": "1px solid rgba(255,255,255,0.08) !important",
+      "border-bottom": "1px solid rgba(255,255,255,0.03) !important",
+      "border-right": "1px solid rgba(255,255,255,0.05) !important",
+      "box-shadow": "inset 0 1px 3px 0 rgba(255,255,255,0.06), 0 1px 4px 0 rgba(0,0,0,0.3) !important"
    },
    ".part.activitybar .content > div:last-child": {
       "transform": "translateY(-10px) !important"
    },
    ".part.activitybar .action-item .action-label": {
-      "font-size": "18px !important",
-      "width": "30px !important",
-      "height": "30px !important",
-      "line-height": "30px !important",
+      "font-size": "22px !important",
+      "width": "34px !important",
+      "height": "34px !important",
+      "line-height": "34px !important",
       "display": "flex !important",
       "align-items": "center !important",
       "justify-content": "center !important",
       "overflow": "visible !important"
    },
    ".part.activitybar .action-item .action-label .codicon": {
-      "font-size": "18px !important"
+      "font-size": "22px !important"
    },
    ".part.activitybar .action-item .action-label img": {
-      "max-width": "18px !important",
-      "max-height": "18px !important"
+      "max-width": "22px !important",
+      "max-height": "22px !important"
    },
    ".part.activitybar .action-item .active-item-indicator": {
       "display": "none !important"
@@ -307,10 +323,10 @@
       "transform-origin": "top right !important"
    },
    ".part.titlebar": {
-      "background-color": "#121216 !important"
+      "background-color": "var(--islands-bg-canvas) !important"
    },
    ".part.statusbar": {
-      "background-color": "#121216 !important",
+      "background-color": "var(--islands-bg-canvas) !important",
       "font-family": "'Bear Sans UI', sans-serif !important"
    },
    ".part.statusbar .statusbar-item-label": {
@@ -348,18 +364,18 @@
       "border-radius": "9999px !important",
       "overflow": "hidden !important",
       "border": "none !important",
-      "background": "#151518 !important",
+      "background": "color-mix(in srgb, var(--islands-bg-canvas), var(--islands-bg-surface) 30%) !important",
       "box-shadow": "inset 0 1px 0 0 rgba(255,255,255,0.1), inset 1px 0 0 0 rgba(255,255,255,0.05), inset 0 -1px 0 0 rgba(255,255,255,0.02), inset -1px 0 0 0 rgba(255,255,255,0.02), inset 0 1px 3px 0 rgba(255,255,255,0.04), 0 1px 4px 0 rgba(0,0,0,0.25) !important"
    },
    ".command-center-center *": {
       "border-radius": "9999px !important"
    },
    ".notifications-toasts": {
-      "margin-right": "8px !important",
-      "margin-bottom": "8px !important"
+      "margin-right": "var(--islands-panel-gap) !important",
+      "margin-bottom": "var(--islands-panel-gap) !important"
    },
    ".notification-toast": {
-      "border-radius": "14px !important",
+      "border-radius": "var(--islands-widget-radius) !important",
       "overflow": "hidden !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
@@ -368,7 +384,7 @@
       "box-shadow": "0 4px 12px 0 rgba(0,0,0,0.4) !important"
    },
    ".notifications-center": {
-      "border-radius": "14px !important",
+      "border-radius": "var(--islands-widget-radius) !important",
       "overflow": "hidden !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
@@ -377,25 +393,25 @@
       "box-shadow": "0 4px 12px 0 rgba(0,0,0,0.4) !important"
    },
    ".notification-list-item-actions-container": {
-      "border-radius": "8px !important"
+      "border-radius": "var(--islands-item-radius) !important"
    },
    ".notification-list-item": {
-      "border-radius": "14px !important",
+      "border-radius": "var(--islands-widget-radius) !important",
       "overflow": "hidden !important"
    },
    ".notification-list-item.focused": {
-      "border-radius": "14px !important",
+      "border-radius": "var(--islands-widget-radius) !important",
       "outline-offset": "-1px !important"
    },
    ".monaco-list-row:has(.notification-list-item)": {
-      "border-radius": "14px !important",
+      "border-radius": "var(--islands-widget-radius) !important",
       "overflow": "hidden !important"
    },
    ".part.auxiliarybar": {
-      "margin": "8px 20px 0 8px",
-      "border-radius": "24px !important",
+      "margin": "var(--islands-panel-top) var(--islands-panel-gap) 0 var(--islands-panel-gap)",
+      "border-radius": "var(--islands-panel-radius) !important",
       "overflow": "hidden !important",
-      "max-height": "calc(100% - 16px) !important",
+      "max-height": "calc(100% - var(--islands-panel-top) - 2px) !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
@@ -403,19 +419,19 @@
       "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
    },
    ".part.auxiliarybar .composite.title": {
-      "padding": "8px 0 0 20px !important"
+      "padding": "8px 0 0 8px !important"
    },
    ".part.auxiliarybar .content": {
-      "width": "calc(100% - 20px) !important"
+      "width": "100% !important"
    },
    ".part.auxiliarybar .split-view-view": {
       "max-height": "calc(100% - 24px) !important"
    },
    ".part.auxiliarybar .header": {
-      "padding-left": "20px !important"
+      "padding-left": "8px !important"
    },
    ".quick-input-widget": {
-      "border-radius": "16px !important",
+      "border-radius": "var(--islands-widget-radius) !important",
       "overflow": "hidden !important",
       "border-top": "1px solid rgba(255,255,255,0.1) !important",
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
@@ -424,7 +440,7 @@
       "box-shadow": "0 8px 24px 0 rgba(0,0,0,0.5) !important"
    },
    ".quick-input-widget .monaco-list-row": {
-      "border-radius": "6px !important",
+      "border-radius": "var(--islands-item-radius) !important",
       "margin-left": "4px !important",
       "margin-right": "4px !important",
       "width": "calc(100% - 8px) !important",
@@ -455,7 +471,57 @@
    },
    ".tab.active .tab-actions": {
       "opacity": "1 !important"
+   },
+   ".sticky-widget": {
+      "box-shadow": "0 4px 8px -2px rgba(0,0,0,0.4) !important",
+      "z-index": "1 !important"
+   },
+   ".monaco-dialog-box": {
+      "border-radius": "var(--islands-widget-radius) !important",
+      "overflow": "hidden !important",
+      "border-top": "1px solid rgba(255,255,255,0.1) !important",
+      "border-left": "1px solid rgba(255,255,255,0.06) !important",
+      "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
+      "border-right": "1px solid rgba(255,255,255,0.02) !important",
+      "box-shadow": "0 8px 24px 0 rgba(0,0,0,0.5) !important"
+   },
+   ".monaco-dialog-box .dialog-buttons .monaco-button": {
+      "border-radius": "var(--islands-input-radius) !important"
+   },
+   ".notebook-toolbar-container": {
+      "max-width": "calc(100% - 18px) !important"
+   },
+   ".notebookOverlay": {
+      "border-radius": "0 0 var(--islands-panel-radius) var(--islands-panel-radius) !important",
+      "clip-path": "inset(0 18px var(--islands-panel-gap) var(--islands-panel-gap) round 0 0 var(--islands-panel-radius) var(--islands-panel-radius)) !important"
+   },
+   ".chat-editing-session-container": {
+      "border-radius": "var(--islands-input-radius) !important",
+      "overflow": "hidden !important"
+   },
+   ".chat-confirmation-widget2": {
+      "border-radius": "var(--islands-input-radius) !important",
+      "overflow": "hidden !important"
+   },
+   ".chat-input-container": {
+      "background-color": "var(--islands-bg-surface) !important",
+      "border-radius": "var(--islands-widget-radius) !important",
+      "border-top": "1px solid rgba(255,255,255,0.1) !important",
+      "border-left": "1px solid rgba(255,255,255,0.06) !important",
+      "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
+      "border-right": "1px solid rgba(255,255,255,0.02) !important",
+      "overflow": "hidden !important"
+   },
+   ".chat-input-container .monaco-inputbox": {
+      "background-color": "var(--islands-bg-surface) !important"
+   },
+   ".interactive-input-part": {
+      "border-radius": "var(--islands-widget-radius) !important",
+      "overflow": "hidden !important"
    }
   },
-  "workbench.iconTheme": "vs-seti-folder"
+"workbench.iconTheme": "vs-seti-folder",
+"chat.viewSessions.orientation": "stacked",
+"gitlens.ai.model": "vscode",
+"gitlens.ai.vscode.model": "copilot:gpt-4.1"
 }

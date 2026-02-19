@@ -159,22 +159,69 @@ Copy the contents of `settings.json` from this repo into your VS Code: settings:
 
 ## What the CSS customizations do
 
-| Element | Effect |
-|---------|--------|
-| **Canvas** | Deep dark background (`#131217`) behind all panels |
-| **Sidebar** | Floating with 24px rounded corners, glass borders, drop shadow |
-| **Editor** | Floating with 24px rounded corners, glass borders, browser-tab effect |
+| **Element** | **Effect** |
+|-------------|------------|
+| **Canvas** | Deep dark background (`--islands-bg-canvas`) behind all panels |
+| **Sidebar** | Floating with rounded corners (`--islands-panel-radius`), glass borders, drop shadow |
+| **Editor** | Floating with rounded corners (`--islands-panel-radius`), glass borders, browser-tab effect |
 | **Activity bar** | Pill-shaped with glass inset shadows, circular selection indicator |
 | **Command center** | Pill-shaped with glass effect |
-| **Bottom panel** | Floating with 14px rounded corners, glass borders |
-| **Right sidebar** | Floating with 24px rounded corners, glass borders |
-| **Notifications** | 14px rounded corners, glass borders, deep drop shadow |
-| **Command palette** | 16px rounded corners, glass borders, rounded list rows |
+| **Bottom panel** | Floating with rounded corners (`--islands-panel-radius`), glass borders |
+| **Right sidebar** | Floating with rounded corners (`--islands-panel-radius`), glass borders |
+| **Notifications** | Rounded corners (`--islands-widget-radius`), glass borders, deep drop shadow |
+| **Command palette** | Rounded corners (`--islands-widget-radius`), glass borders, rounded list rows |
 | **Scrollbars** | Pill-shaped thumbs with fade transition |
 | **Tabs** | Browser-tab style (active tab open at bottom), close button fades in on hover |
 | **Breadcrumbs** | Hidden until hover with smooth fade transition |
 | **Status bar** | Dimmed text that brightens on hover |
 | **File icons** | Color-matched glow via drop-shadow (best with Seti Folder icon theme) |
+
+## Customization
+
+All key visual properties are controlled by CSS custom properties defined at the top of the `custom-ui-style.stylesheet` in `settings.json`. Edit the variables on `.monaco-workbench` to quickly adjust the look:
+
+```json
+".monaco-workbench": {
+    "--islands-panel-radius": "24px",
+    "--islands-widget-radius": "14px",
+    "--islands-input-radius": "12px",
+    "--islands-item-radius": "6px",
+    "--islands-panel-gap": "8px",
+    "--islands-panel-top": "8px",
+    "--islands-bg-canvas": "#121216",
+    "--islands-bg-surface": "#181a1d",
+    "background-color": "var(--islands-bg-canvas) !important"
+}
+```
+
+### Colors
+
+| **Variable** | **Default** | **Applies to** |
+|--------------|-------------|----------------|
+| `--islands-bg-canvas` | `#121216` | Deep background behind all panels (workbench, title bar, status bar, activity bar) |
+| `--islands-bg-surface` | `#181a1d` | Panel/surface background (chat input, editor widgets) |
+
+These two colors define the theme's depth. The canvas is the darker base layer visible between panels, while the surface is the slightly lighter color used for interactive elements. To override the theme's panel colors (sidebar, editor, terminal backgrounds), use VS Code's `workbench.colorCustomizations` in your settings.
+
+### Border Radius
+
+| **Variable** | **Default** | **Applies to** |
+|--------------|-------------|----------------|
+| `--islands-panel-radius` | `24px` | Sidebar, editor, terminal/bottom panel, auxiliary bar |
+| `--islands-widget-radius` | `14px` | Notifications, chat input, command palette |
+| `--islands-input-radius` | `12px` | Search bars, SCM commit input, buttons, hover tooltips |
+| `--islands-item-radius` | `6px` | List rows, tabs, pane headers, terminal tabs |
+
+For example, to make everything sharper, set all values to `8px`. For a fully rounded look, try `32px` / `20px` / `16px` / `8px`. Pill-shaped elements (activity bar, scrollbar thumbs, command center, badges) are not affected by these variables.
+
+### Panel Spacing
+
+| **Variable** | **Default** | **Applies to** |
+|--------------|-------------|----------------|
+| `--islands-panel-gap` | `8px` | Horizontal spacing between sidebar, editor, chat/auxiliary bar, terminal, and notifications |
+| `--islands-panel-top` | `8px` | Top margin of panels (space below the title bar) |
+
+Increase to `12px` or `16px` for a more spaced-out layout, or reduce to `4px` for a tighter look.
 
 ## Troubleshooting
 

@@ -2,7 +2,7 @@
   "name": "Islands Dark",
   "type": "dark",
   "colors": {
-    "focusBorder": "#548af7",
+    "focusBorder": "#00000000",
     "foreground": "#bcbec4",
     "descriptionForeground": "#7a7e85",
     "errorForeground": "#f75464",
@@ -32,7 +32,7 @@
     "dropdown.border": "#3c3f41",
     "dropdown.listBackground": "#2b2d30",
 
-    "input.background": "#181a1d",
+    "input.background": "#191a1c",
     "input.foreground": "#bcbec4",
     "input.border": "#3c3f41",
     "input.placeholderForeground": "#7a7e85",
@@ -170,7 +170,7 @@
     "editorGutter.modifiedBackground": "#548af7",
     "editorGutter.deletedBackground": "#f75464",
 
-    "editorWidget.background": "#181a1d",
+    "editorWidget.background": "#191a1c",
     "editorWidget.foreground": "#bcbec4",
     "editorWidget.border": "#25262a",
     "editorSuggestWidget.background": "#2b2d30",
@@ -205,13 +205,26 @@
     "merge.commonHeaderBackground": "#3c3f4160",
     "merge.commonContentBackground": "#3c3f4130",
 
-    "panel.background": "#181a1d",
+    "panel.background": "#191a1c",
     "panel.border": "#181a1d00",
     "panel.dropBorder": "#548af7",
     "panelTitle.activeBorder": "#548af7",
     "panelTitle.activeForeground": "#bcbec4",
     "panelTitle.inactiveForeground": "#7a7e85",
     "panelSection.border": "#2b2d30",
+
+    "notebook.editorBackground": "#181a1d",
+    "notebook.cellBorderColor": "#2b2d30",
+    "notebook.focusedCellBorder": "#548af7",
+    "notebook.cellToolbarSeparator": "#2b2d30",
+    "notebook.selectedCellBackground": "#1e2024",
+    "notebook.selectedCellBorder": "#548af7",
+    "notebook.focusedEditorBorder": "#548af700",
+    "notebook.cellEditorBackground": "#1e2024",
+    "notebook.inactiveFocusedCellBorder": "#2b2d30",
+    "notebookStatusSuccessIcon.foreground": "#73b00a",
+    "notebookStatusErrorIcon.foreground": "#f75464",
+    "notebookStatusRunningIcon.foreground": "#548af7",
 
     "statusBar.background": "#181a1d",
     "statusBar.foreground": "#35383d",
@@ -232,9 +245,9 @@
     "statusBarItem.warningBackground": "#e8a33e",
     "statusBarItem.warningForeground": "#191a1c",
 
-    "titleBar.activeBackground": "#181a1d",
+    "titleBar.activeBackground": "#121216",
     "titleBar.activeForeground": "#bcbec4",
-    "titleBar.inactiveBackground": "#181a1d",
+    "titleBar.inactiveBackground": "#121216",
     "titleBar.inactiveForeground": "#7a7e85",
     "titleBar.border": "#181a1d00",
 
