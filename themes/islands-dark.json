@@ -232,9 +232,9 @@
     "statusBarItem.warningBackground": "#e8a33e",
     "statusBarItem.warningForeground": "#191a1c",
 
-    "titleBar.activeBackground": "#181a1d",
+    "titleBar.activeBackground": "#121216",
     "titleBar.activeForeground": "#bcbec4",
-    "titleBar.inactiveBackground": "#181a1d",
+    "titleBar.inactiveBackground": "#121216",
     "titleBar.inactiveForeground": "#7a7e85",
     "titleBar.border": "#181a1d00",
 
