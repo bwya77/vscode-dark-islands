@@ -15,7 +15,7 @@ A dark color theme for Visual Studio Code inspired by the easemate IDE. Features
 - [easemate effects](https://x.com/aaroniker/status/1989727838992539655)
 
 
-![Islands Dark Screenshot](assets/CleanShot%202026-02-14%20at%2021.47.05@2x.png)
+![Islands Dark Screenshot](assets/CleanShot%202026-02-19%20at%2019.37.59@2x.png)
 
 ## Features
 

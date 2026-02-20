@@ -9,6 +9,9 @@
     "icon.foreground": "#bcbec4",
     "selection.background": "#373b39",
     "widget.shadow": "#00000030",
+    "contrastBorder": "#00000000",
+    "contrastActiveBorder": "#00000000",
+    "widget.border": "#00000000",
 
     "textLink.foreground": "#0dbc79",
     "textLink.activeForeground": "#0ad46e",
@@ -252,6 +255,9 @@
     "titleBar.inactiveBackground": "#10141a",
     "titleBar.inactiveForeground": "#7a7e85",
     "titleBar.border": "#191d2100",
+
+    "window.activeBorder": "#00000000",
+    "window.inactiveBorder": "#00000000",
 
     "menu.background": "#2b2d30",
     "menu.foreground": "#bcbec4",

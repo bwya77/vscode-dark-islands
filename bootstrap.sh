@@ -27,6 +27,7 @@ echo "   Repository: $REPO_URL"
 # Remove old temp directory if exists
 rm -rf "$INSTALL_DIR"
 
+
 # Clone repository
 BRANCH="main"
 if ! git clone "$REPO_URL" "$INSTALL_DIR" --quiet --branch "$BRANCH"; then
@@ -34,7 +35,7 @@ if ! git clone "$REPO_URL" "$INSTALL_DIR" --quiet --branch "$BRANCH"; then
     exit 1
 fi
 
-echo "✓ Downloaded successfully"
+echo "✓ Downloaded successfully!"
 echo ""
 
 echo "🚀 Step 2: Running installer..."
