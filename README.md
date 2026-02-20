@@ -82,6 +82,36 @@ The scripts will automatically:
 
 > **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you).
 
+### Nix Flake Install
+
+If you use Nix, you can run a pre-configured instance of VS Code (or VSCodium) with the theme, extensions, and fonts already bundled.
+
+To run it directly without installing:
+
+```bash
+# Run VS Code
+nix run github:bwya77/vscode-dark-islands#vscode
+
+# Or run VSCodium
+nix run github:bwya77/vscode-dark-islands#vscodium
+```
+
+To use it in your NixOS or Home Manager configuration, add it to your flake inputs:
+
+```nix
+{
+  inputs.islands-dark.url = "github:bwya77/vscode-dark-islands";
+
+  outputs = { self, nixpkgs, islands-dark, ... }: {
+    # Then you can add and use it:
+    # islands-dark.packages.${pkgs.stdenv.hostPlatform.system}.vscode
+    # islands-dark.packages.${pkgs.stdenv.hostPlatform.system}.vscodium
+  };
+}
+```
+
+> **Note:** The Nix flake automatically includes the **Custom UI Style** extension, **Seti Folder** icon theme, and all required fonts (**Bear Sans UI**, **IBM Plex Mono**, and **FiraCode Nerd Font**). It will also copy the recommended `settings.json` on the first run.
+
 ### Manual Installation
 
 If you prefer to install manually, follow these steps:
