@@ -538,7 +538,17 @@
    },
    ".chat-editing-session-container": {
       "border-radius": "var(--islands-input-radius) !important",
-      "overflow": "hidden !important"
+      "overflow": "hidden !important",
+      "background-color": "var(--islands-bg-surface) !important"
+   },
+   ".agent-sessions-title": {
+      "font-size": "10px !important",
+      "letter-spacing": "0.05em !important"
+   },
+   ".chat-editing-session-container .pane-header": {
+      "min-height": "20px !important",
+      "height": "20px !important",
+      "line-height": "20px !important"
    },
    ".chat-confirmation-widget2": {
       "border-radius": "var(--islands-input-radius) !important",
@@ -555,6 +565,12 @@
    },
    ".chat-input-container .monaco-inputbox": {
       "background-color": "var(--islands-bg-surface) !important"
+   },
+   ".chat-input-container .chat-attached-context": {
+      "background-color": "var(--islands-bg-surface) !important"
+   },
+   ".chat-input-container .chat-attached-context .chat-attached-context-attachment": {
+      "background-color": "transparent !important"
    },
    ".interactive-input-part": {
       "border-radius": "var(--islands-widget-radius) !important",
