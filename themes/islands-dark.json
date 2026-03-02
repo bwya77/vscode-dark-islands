@@ -232,7 +232,7 @@
     "notebookStatusRunningIcon.foreground": "#548af7",
 
     "statusBar.background": "#181a1d",
-    "statusBar.foreground": "#35383d",
+    "statusBar.foreground": "#ffffff",
     "statusBar.border": "#181a1d00",
     "statusBar.noFolderBackground": "#181a1d",
     "statusBar.noFolderForeground": "#35383d",
