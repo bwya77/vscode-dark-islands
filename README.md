@@ -155,7 +155,7 @@ For the best experience with the color-matched icon glow effect, install the **S
 3. Click **Install**
 4. Set it as your icon theme: **Command Palette** > **Preferences: File Icon Theme** > **Seti Folder**
 
-#### Step 5: Install fonts
+#### Step 4: Install fonts
 
 This theme uses two fonts:
 
@@ -169,7 +169,7 @@ To install Bear Sans UI:
 
 If you prefer different fonts, update the `editor.fontFamily`, `terminal.integrated.fontFamily`, and `font-family` values in the settings.
 
-#### Step 6: Apply the settings
+#### Step 5: Apply the settings
 
 Copy the contents of `settings.json` from this repo into your VS Code: settings:
 
@@ -179,7 +179,7 @@ Copy the contents of `settings.json` from this repo into your VS Code: settings:
 
 > **Note:** If you already have existing settings, merge carefully. The key settings are `workbench.colorTheme`, `custom-ui-style.stylesheet`, and the font/indent preferences.
 
-#### Step 7: Enable Custom UI Style
+#### Step 6: Enable Custom UI Style
 
 1. Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`)
 2. Run **Custom UI Style: Enable**
