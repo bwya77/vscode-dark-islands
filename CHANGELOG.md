@@ -23,7 +23,7 @@
 - Uninstall script (tested on MacOS)
 - Funding.yml file 
 - Users can set the 'roundness' of elements by modifying `css` variables. Please see the "Customizing Border Radius" section in the README.md file
-- Users can set the spacing between elements such as the explorer pane, chat pane, editor, and temrinal. #17
+- Users can set the spacing between elements such as the explorer pane, chat pane, editor, and terminal. #17
 - Users can now set the primary and secondary colors by setting the `islands-bg-surface` and `islands-bg-canvas` variables.
 - 2px spacing between the terminal and editor. 
 - The system dialog box now follows our theme with rounded corners
