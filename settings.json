@@ -247,10 +247,13 @@
       "z-index": "1 !important"
    },
    ".part.panel.bottom > .content": {
-      "margin-top": "-6px !important",
+      "margin-top": "0 !important",
       "position": "relative !important",
       "border-radius": "0 0 calc(var(--islands-panel-radius) - var(--islands-panel-gap)) calc(var(--islands-panel-radius) - var(--islands-panel-gap)) !important",
       "overflow": "hidden !important"
+   },
+   ".part.panel.bottom:has(.terminal-outer-container) > .content": {
+      "margin-top": "-7px !important"
    },
    ".part.panel.bottom .pane": {
       "border-bottom": "none !important"
@@ -551,14 +554,22 @@
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
       "border-right": "1px solid rgba(255,255,255,0.02) !important",
-      "overflow": "hidden !important"
+      "overflow": "visible !important",
+      "display": "flex !important",
+      "flex-direction": "column !important",
+      "align-items": "stretch !important"
    },
    ".chat-input-container .monaco-inputbox": {
       "background-color": "var(--islands-bg-surface) !important"
    },
    ".interactive-input-part": {
       "border-radius": "var(--islands-widget-radius) !important",
-      "overflow": "hidden !important"
+      "overflow": "visible !important",
+      "display": "flex !important",
+      "flex-direction": "column !important"
+   },
+   ".interactive-input-part .monaco-editor": {
+      "overflow": "visible !important"
    },
 
    ".monaco-button-dropdown-separator": {
