@@ -12,6 +12,19 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Check if code command is available
+if ! command -v code &> /dev/null; then
+    echo -e "${RED}❌ Error: VS Code CLI (code) not found!${NC}"
+    echo "Please install VS Code and make sure 'code' command is in your PATH."
+    echo "You can do this by:"
+    echo "  1. Open VS Code"
+    echo "  2. Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Linux)"
+    echo "  3. Type 'Shell Command: Install code command in PATH'"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ VS Code CLI found${NC}"
+
 # Step 1: Restore old settings
 echo "⚙️  Step 1: Restoring VS Code settings..."
 SETTINGS_DIR="$HOME/.config/Code/User"
@@ -50,35 +63,13 @@ else
     echo -e "${YELLOW}⚠️  Extension directory not found (may already be removed)${NC}"
 fi
 
-# Step 4: Remove extension from extensions.json
+# Step 4: Uninstall extension via VS Code CLI
 echo ""
-echo "📋 Step 4: Unregistering extension..."
-if command -v node &> /dev/null; then
-    node << 'UNREGISTER_SCRIPT'
-const fs = require('fs');
-const path = require('path');
-
-const extJsonPath = path.join(process.env.HOME, '.vscode', 'extensions', 'extensions.json');
-if (fs.existsSync(extJsonPath)) {
-    try {
-        let extensions = JSON.parse(fs.readFileSync(extJsonPath, 'utf8'));
-        const before = extensions.length;
-        extensions = extensions.filter(e =>
-            e.identifier?.id !== 'bwya77.islands-dark' &&
-            e.identifier?.id !== 'your-publisher-name.islands-dark'
-        );
-        if (extensions.length < before) {
-            fs.writeFileSync(extJsonPath, JSON.stringify(extensions));
-            console.log('Extension unregistered');
-        } else {
-            console.log('Extension was not registered');
-        }
-    } catch (e) {
-        console.log('Could not update extensions.json');
-    }
-}
-UNREGISTER_SCRIPT
-    echo -e "${GREEN}✓ Extension unregistered${NC}"
+echo "📋 Step 4: Uninstalling extension from VS Code..."
+if code --uninstall-extension bwya77.islands-dark --force 2>/dev/null; then
+    echo -e "${GREEN}✓ Extension uninstalled via VS Code CLI${NC}"
+else
+    echo -e "${YELLOW}⚠️  Extension not installed (or already removed)${NC}"
 fi
 
 # Step 5: Change theme

@@ -62,14 +62,6 @@ if (Test-Path "$extDir\themes") {
     exit 1
 }
 
-# Remove extensions.json so VS Code rebuilds it cleanly on next launch
-# (previous versions of this script wrote invalid content to this file)
-$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
-if (Test-Path $extJsonPath) {
-    Remove-Item $extJsonPath -Force
-    Write-Host "Cleared extensions.json (VS Code will rebuild it)" -ForegroundColor Green
-}
-
 Write-Host ""
 Write-Host "Step 2: Installing Custom UI Style extension..."
 try {
