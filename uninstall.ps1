@@ -8,6 +8,37 @@ Write-Host "Islands Dark Theme Uninstaller for Windows" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host ""
 
+# Check if VS Code is installed
+$codePath = Get-Command "code" -ErrorAction SilentlyContinue
+if (-not $codePath) {
+    $possiblePaths = @(
+        "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
+        "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
+        "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd"
+    )
+
+    $found = $false
+    foreach ($path in $possiblePaths) {
+        if (Test-Path $path) {
+            $env:Path += ";$(Split-Path $path)"
+            $found = $true
+            break
+        }
+    }
+
+    if (-not $found) {
+        Write-Host "Error: VS Code CLI (code) not found!" -ForegroundColor Red
+        Write-Host "Please install VS Code and make sure 'code' command is in your PATH."
+        Write-Host "You can do this by:"
+        Write-Host "  1. Open VS Code"
+        Write-Host "  2. Press Ctrl+Shift+P"
+        Write-Host "  3. Type 'Shell Command: Install code command in PATH'"
+        exit 1
+    }
+}
+
+Write-Host "VS Code CLI found" -ForegroundColor Green
+
 # Step 1: Restore old settings
 Write-Host "Step 1: Restoring VS Code settings..."
 $settingsDir = "$env:APPDATA\Code\User"
@@ -42,27 +73,18 @@ if (Test-Path $extDir) {
     Write-Host "Extension directory not found (may already be removed)" -ForegroundColor Yellow
 }
 
-# Step 4: Remove extension from extensions.json
+# Step 4: Uninstall extension via VS Code CLI
 Write-Host ""
-Write-Host "Step 4: Unregistering extension..."
-$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
+Write-Host "Step 4: Uninstalling extension from VS Code..."
 try {
-    if (Test-Path $extJsonPath) {
-        $extensions = Get-Content $extJsonPath -Raw | ConvertFrom-Json
-        $before = $extensions.Count
-        $extensions = @($extensions | Where-Object {
-            $_.identifier.id -ne 'bwya77.islands-dark' -and
-            $_.identifier.id -ne 'your-publisher-name.islands-dark'
-        })
-        if ($extensions.Count -lt $before) {
-            $extensions | ConvertTo-Json -Depth 10 -Compress | Set-Content $extJsonPath
-            Write-Host "Extension unregistered" -ForegroundColor Green
-        } else {
-            Write-Host "Extension was not registered" -ForegroundColor Yellow
-        }
+    $null = code --uninstall-extension bwya77.islands-dark --force 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Extension uninstalled via VS Code CLI" -ForegroundColor Green
+    } else {
+        Write-Host "Extension not installed (or already removed)" -ForegroundColor Yellow
     }
 } catch {
-    Write-Host "Could not update extensions.json" -ForegroundColor Yellow
+    Write-Host "Could not uninstall extension via VS Code CLI" -ForegroundColor Yellow
 }
 
 # Step 5: Change theme
