@@ -390,12 +390,20 @@
       "margin-top": "-2px !important"
    },
    ".monaco-icon-label.file-icon::before": {
-      "filter": "drop-shadow(0 0 2.5px currentColor)",
+      "filter": "none !important",
       "opacity": "1 !important"
    },
    ".letterpress": {
       "opacity": "0.4 !important",
       "filter": "brightness(0) drop-shadow(2px 2px 1px rgba(255,255,255,0.12)) drop-shadow(-2px -2px 1px rgba(0,0,0,1)) !important"
+   },
+   ".part.editor .monaco-icon-label.file-icon::before": {
+      "filter": "none !important",
+      "opacity": "1 !important"
+   },
+   ".part.editor .letterpress": {
+      "filter": "none !important",
+      "opacity": "1 !important"
    },
    ".part.titlebar .action-label": {
       "border-radius": "50% !important"
