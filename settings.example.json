@@ -1,0 +1,16 @@
+{
+  "// Islands Dark recommended settings": "Merge these manually if desired. Do not replace your full VS Code settings file with this file.",
+  "workbench.colorTheme": "Islands Dark",
+  "workbench.iconTheme": "vs-seti-folder",
+  "editor.fontFamily": "IBM Plex Mono, Consolas, monospace",
+  "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono, Consolas, monospace",
+  "editor.lineHeight": 1.8,
+  "workbench.tree.indent": 16,
+  "workbench.tree.renderIndentGuides": "always",
+  "editor.minimap.showSlider": "always",
+  "vscode_custom_css.imports": [
+    "file:///ABSOLUTE/PATH/TO/vscode-dark-islands/custom-css/islands-dark.css"
+  ],
+  "vscode_custom_css.statusbar": true,
+  "chat.viewSessions.orientation": "stacked"
+}

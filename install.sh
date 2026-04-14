@@ -1,149 +1,187 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-
-echo "🏝️  Islands Dark Theme Installer for macOS/Linux"
-echo "================================================"
-echo ""
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Check if code command is available
-if ! command -v code &> /dev/null; then
-    echo -e "${RED}❌ Error: VS Code CLI (code) not found!${NC}"
-    echo "Please install VS Code and make sure 'code' command is in your PATH."
-    echo "You can do this by:"
-    echo "  1. Open VS Code"
-    echo "  2. Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Linux)"
-    echo "  3. Type 'Shell Command: Install code command in PATH'"
-    exit 1
+if ! command -v code >/dev/null 2>&1; then
+  echo "VS Code CLI 'code' was not found. Install VS Code or add the code command to PATH." >&2
+  exit 1
 fi
 
-echo -e "${GREEN}✓ VS Code CLI found${NC}"
+read_package_value() {
+  sed -nE "s/^[[:space:]]*\"$1\"[[:space:]]*:[[:space:]]*\"([^\"]+)\".*/\1/p" "$SCRIPT_DIR/package.json" | head -n 1
+}
 
-# Get the directory where this script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+file_url() {
+  local path="$1"
+  local encoded=""
+  local i ch hex
 
-echo ""
-echo "📦 Step 1: Installing Islands Dark theme extension..."
+  LC_ALL=C
+  for ((i = 0; i < ${#path}; i++)); do
+    ch="${path:i:1}"
+    case "$ch" in
+      [a-zA-Z0-9.~_/-]) encoded+="$ch" ;;
+      *) printf -v hex '%%%02X' "'$ch"; encoded+="$hex" ;;
+    esac
+  done
 
-# Install by copying to VS Code extensions directory
-EXT_DIR="$HOME/.vscode/extensions/bwya77.islands-dark-1.0.0"
-rm -rf "$EXT_DIR"
-mkdir -p "$EXT_DIR"
-cp "$SCRIPT_DIR/package.json" "$EXT_DIR/"
-cp -r "$SCRIPT_DIR/themes" "$EXT_DIR/"
+  printf 'file://%s\n' "$encoded"
+}
 
-if [ -d "$EXT_DIR/themes" ]; then
-    echo -e "${GREEN}✓ Theme extension installed to $EXT_DIR${NC}"
-else
-    echo -e "${RED}❌ Failed to install theme extension${NC}"
-    exit 1
+PUBLISHER="$(read_package_value publisher)"
+NAME="$(read_package_value name)"
+VERSION="$(read_package_value version)"
+if [ -z "$PUBLISHER" ] || [ -z "$NAME" ] || [ -z "$VERSION" ]; then
+  echo "Could not read extension metadata from package.json." >&2
+  exit 1
 fi
+EXTENSION_DIR="$HOME/.vscode/extensions/$PUBLISHER.$NAME-$VERSION"
 
-# Remove extensions.json so VS Code rebuilds it cleanly on next launch
-# (previous versions of this script wrote invalid content to this file)
-EXT_JSON="$HOME/.vscode/extensions/extensions.json"
-if [ -f "$EXT_JSON" ]; then
-    rm -f "$EXT_JSON"
-    echo -e "${GREEN}✓ Cleared extensions.json (VS Code will rebuild it)${NC}"
-fi
-
+echo "Islands Dark installer"
+echo "This installs the theme, Custom CSS and JS Loader, fonts, and prepares the CSS import setting."
+echo "When Node.js is available, it merges settings instead of replacing your settings.json."
 echo ""
-echo "🔧 Step 2: Installing Custom UI Style extension..."
-if code --install-extension subframe7536.custom-ui-style --force; then
-    echo -e "${GREEN}✓ Custom UI Style extension installed${NC}"
-else
-    echo -e "${YELLOW}⚠️  Could not install Custom UI Style extension automatically${NC}"
-    echo "   Please install it manually from the Extensions marketplace"
-fi
 
-echo ""
-echo "🔤 Step 3: Installing Bear Sans UI fonts..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
+echo "Installing Islands Dark theme extension to $EXTENSION_DIR..."
+rm -rf "$EXTENSION_DIR"
+mkdir -p "$EXTENSION_DIR"
+for item in package.json README.md themes custom-css assets fonts icon.png; do
+  if [ -e "$SCRIPT_DIR/$item" ]; then
+    cp -R "$SCRIPT_DIR/$item" "$EXTENSION_DIR/"
+  fi
+done
+
+echo "Installing Custom CSS and JS Loader..."
+code --install-extension be5invis.vscode-custom-css --force
+
+echo "Installing bundled Bear Sans UI fonts..."
+case "${OSTYPE:-}" in
+  darwin*)
     FONT_DIR="$HOME/Library/Fonts"
-    echo "   Installing fonts to: $FONT_DIR"
-    cp "$SCRIPT_DIR/fonts/"*.otf "$FONT_DIR/" 2>/dev/null || true
-    echo -e "${GREEN}✓ Fonts installed to Font Book${NC}"
-    echo "   Note: You may need to restart applications to use the new fonts"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Linux
+    mkdir -p "$FONT_DIR"
+    cp "$SCRIPT_DIR"/fonts/*.otf "$FONT_DIR"/ 2>/dev/null || true
+    ;;
+  linux*)
     FONT_DIR="$HOME/.local/share/fonts"
     mkdir -p "$FONT_DIR"
-    echo "   Installing fonts to: $FONT_DIR"
-    cp "$SCRIPT_DIR/fonts/"*.otf "$FONT_DIR/" 2>/dev/null || true
-    fc-cache -f 2>/dev/null || true
-    echo -e "${GREEN}✓ Fonts installed${NC}"
+    cp "$SCRIPT_DIR"/fonts/*.otf "$FONT_DIR"/ 2>/dev/null || true
+    fc-cache -f >/dev/null 2>&1 || true
+    ;;
+  *)
+    echo "Skipping automatic font install for this OS. Install fonts from ./fonts manually."
+    ;;
+esac
+
+if [[ "${OSTYPE:-}" == darwin* ]]; then
+  SETTINGS_DIR="$HOME/Library/Application Support/Code/User"
 else
-    echo -e "${YELLOW}⚠️  Could not detect OS type for automatic font installation${NC}"
-    echo "   Please manually install the fonts from the 'fonts/' folder"
+  SETTINGS_DIR="$HOME/.config/Code/User"
 fi
-
-echo ""
-echo "⚙️  Step 4: Applying VS Code settings..."
-SETTINGS_DIR="$HOME/.config/Code/User"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    SETTINGS_DIR="$HOME/Library/Application Support/Code/User"
-fi
-
 mkdir -p "$SETTINGS_DIR"
 SETTINGS_FILE="$SETTINGS_DIR/settings.json"
+CSS_URL="$(file_url "$EXTENSION_DIR/custom-css/islands-dark.css")"
 
-# Backup existing settings if they exist
-if [ -f "$SETTINGS_FILE" ]; then
-    BACKUP_FILE="$SETTINGS_FILE.pre-islands-dark"
-    cp "$SETTINGS_FILE" "$BACKUP_FILE"
-    echo -e "${YELLOW}⚠️  Existing settings.json backed up to:${NC}"
-    echo "   $BACKUP_FILE"
-    echo "   You can restore your old settings from this file if needed."
+if [ -f "$SETTINGS_FILE" ] && command -v node >/dev/null 2>&1; then
+  cp "$SETTINGS_FILE" "$SETTINGS_FILE.pre-islands-dark"
+  echo "Backed up settings to $SETTINGS_FILE.pre-islands-dark"
 fi
 
-# Copy Islands Dark settings
-cp "$SCRIPT_DIR/settings.json" "$SETTINGS_FILE"
-echo -e "${GREEN}✓ Islands Dark settings applied${NC}"
+if command -v node >/dev/null 2>&1; then
+  node - "$SETTINGS_FILE" "$CSS_URL" <<'NODE'
+const fs = require('fs');
+const [settingsFile, cssUrl] = process.argv.slice(2);
+function stripJsonc(text) {
+  let output = '';
+  let inString = false;
+  let escaped = false;
+  let lineComment = false;
+  let blockComment = false;
 
-echo ""
-echo "🚀 Step 5: Enabling Custom UI Style..."
-echo "   VS Code will reload after applying changes..."
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1] || '';
 
-# Create a flag file to indicate first run
-FIRST_RUN_FILE="$SCRIPT_DIR/.islands_dark_first_run"
-if [ ! -f "$FIRST_RUN_FILE" ]; then
-    touch "$FIRST_RUN_FILE"
-    echo ""
-    echo -e "${YELLOW}📝 Important Notes:${NC}"
-    echo "   • IBM Plex Mono and FiraCode Nerd Font Mono need to be installed separately"
-    echo "   • After VS Code reloads, you may see a 'corrupt installation' warning"
-    echo "   • This is expected - click the gear icon and select 'Don't Show Again'"
-    echo ""
-    if [ -t 0 ]; then
-        read -p "Press Enter to continue and reload VS Code..."
-    fi
+    if (lineComment) {
+      if (ch === '\n') {
+        lineComment = false;
+        output += ch;
+      }
+      continue;
+    }
+    if (blockComment) {
+      if (ch === '*' && next === '/') {
+        blockComment = false;
+        i++;
+      }
+      continue;
+    }
+    if (inString) {
+      output += ch;
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      output += ch;
+      continue;
+    }
+    if (ch === '/' && next === '/') {
+      lineComment = true;
+      i++;
+      continue;
+    }
+    if (ch === '/' && next === '*') {
+      blockComment = true;
+      i++;
+      continue;
+    }
+    output += ch;
+  }
+
+  return output.replace(/,\s*([}\]])/g, '$1');
+}
+let settings = {};
+if (fs.existsSync(settingsFile)) {
+  const raw = fs.readFileSync(settingsFile, 'utf8').trim();
+  if (raw) settings = JSON.parse(stripJsonc(raw));
+}
+const imports = Array.isArray(settings['vscode_custom_css.imports'])
+  ? settings['vscode_custom_css.imports']
+  : [];
+if (!imports.includes(cssUrl)) imports.push(cssUrl);
+settings['vscode_custom_css.imports'] = imports;
+settings['vscode_custom_css.statusbar'] = true;
+settings['workbench.colorTheme'] = 'Islands Dark';
+fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
+NODE
+  SETTINGS_UPDATED=1
+else
+  SETTINGS_UPDATED=0
 fi
 
-# Apply custom UI style
-echo "   Applying CSS customizations..."
-
-# Reload VS Code to apply changes
-echo -e "${GREEN}✓ Setup complete!${NC}"
 echo ""
-echo "🎉 Islands Dark theme has been installed!"
-echo "   VS Code will now reload to apply the custom UI style."
-echo ""
-
-# Use AppleScript on macOS to show a notification and reload VS Code
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    osascript -e 'display notification "Islands Dark theme installed successfully!" with title "🏝️ Islands Dark"' 2>/dev/null || true
+echo "Installed. Final step:"
+if [ "$SETTINGS_UPDATED" -eq 0 ]; then
+  echo "Node.js was not found, so settings.json was not modified automatically."
+  echo "Add these settings in VS Code before enabling the custom CSS loader:"
+  echo "If vscode_custom_css.imports already exists, add the CSS URL to that existing array."
+  echo ""
+  echo "\"workbench.colorTheme\": \"Islands Dark\","
+  echo "\"vscode_custom_css.statusbar\": true,"
+  echo "\"vscode_custom_css.imports\": ["
+  echo "  \"$CSS_URL\""
+  echo "]"
+  echo ""
 fi
-
-echo "   Reloading VS Code..."
-code --reload-window 2>/dev/null || code . 2>/dev/null || true
-
+echo "1. Restart VS Code with permission to modify its install directory if needed."
+echo "2. Run Command Palette > Enable Custom CSS and JS, or Reload Custom CSS and JS."
+echo "3. Reload VS Code."
 echo ""
-echo -e "${GREEN}Done! 🏝️${NC}"
+if [ "$SETTINGS_UPDATED" -eq 1 ]; then
+  echo "CSS import added: $CSS_URL"
+else
+  echo "CSS import URL: $CSS_URL"
+fi

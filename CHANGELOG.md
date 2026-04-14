@@ -1,36 +1,40 @@
 # Changelog
 
-## 0.0.2 - [2026-02-19]
+## Unreleased
 
-### FIXED
-- Fixed chat window colors broken: #15
-- Install script (tested on MacOS) #5, #6
-- The explorer pane would not show all items, some items would be cut off #67, #74, #66, #20, #12
-- Commit message box cut off #57, #70
-- Primary sidebar would be truncated if we moved it to the right #55
-- Issue with explorer pane items being unselected but the file would remain selected. 
-- Border radius of terminal does not match editor, chat, etc. #61
-- Made the primary sidebar icons slightly larger (18px to 22px)
-- Window controls background color is incorrect #72
-- When opening VSCode with no open files, the default tab would be cut off. #30
-- When working with `ipynb` files the editor wouldnt follow correct rendering and code blocks did not stand out #45
-- Elements in the terminal when split screen would spill over
-- Editor tabs overlapping with floating header in Linux #26
-- Markdown files respect `font-family` CSS rules and render monospace fonts correctly #48
+### Changed
+- Extracted the workbench UI styles into `custom-css/islands-dark.css`.
+- Switched the custom CSS flow to depend on `be5invis.vscode-custom-css`.
+- Rewrote install scripts to merge only Islands Dark settings instead of replacing `settings.json`.
+- Rewrote uninstall scripts to remove only the Islands Dark CSS import.
 
-### ADDED
-- Chat text window has rounded corners instead of squared #47
-- Uninstall script (tested on MacOS)
-- Funding.yml file 
-- Users can set the 'roundness' of elements by modifying `css` variables. Please see the "Customizing Border Radius" section in the README.md file
-- Users can set the spacing between elements such as the explorer pane, chat pane, editor, and temrinal. #17
-- Users can now set the primary and secondary colors by setting the `islands-bg-surface` and `islands-bg-canvas` variables.
-- 2px spacing between the terminal and editor. 
-- The system dialog box now follows our theme with rounded corners
-- Shadow under the sticky widget in the editor. 
+### Removed
+- Removed the `subframe7536.custom-ui-style` install path.
+- Removed Antigravity-specific scripts and Nix packaging from the default repo flow.
+- Removed the old embedded `custom-ui-style.stylesheet` settings payload.
 
-### CHANGED
-- Theme and settings.json file are versioned properly #17
+## 0.0.2 - 2026-02-19
 
-### REMOVED
-- Removed the highlight boxes in selection windows - these cannot be rounded #10
+### Fixed
+- Fixed chat window colors.
+- Fixed explorer pane clipping issues.
+- Fixed commit message box clipping.
+- Fixed primary sidebar truncation when moved right.
+- Fixed selected explorer item styling.
+- Fixed terminal border radius mismatch.
+- Fixed window controls background color.
+- Fixed default tab clipping when opening VS Code with no open files.
+- Fixed notebook rendering and code block styling.
+- Fixed split terminal overflow.
+- Fixed editor tabs overlapping with floating header on Linux.
+- Fixed markdown font rendering.
+
+### Added
+- Rounded chat input.
+- Rounded system dialog styling.
+- Configurable CSS variables for radius, spacing, and background colors.
+- Larger primary sidebar icons.
+- Sticky widget shadow.
+
+### Removed
+- Removed highlight boxes in selection windows that could not be rounded reliably.

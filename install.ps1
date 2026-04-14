@@ -1,168 +1,188 @@
-# Islands Dark Theme Installer for Windows
+# Islands Dark Windows installer
 
-param()
+param(
+    [switch]$SkipFonts
+)
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "Islands Dark Theme Installer for Windows" -ForegroundColor Cyan
-Write-Host "================================================" -ForegroundColor Cyan
+function ConvertTo-FileUrl {
+    param([string]$Path)
+    $resolved = (Resolve-Path $Path).Path
+    return ([System.Uri]$resolved).AbsoluteUri
+}
+
+function Strip-Jsonc {
+    param([string]$Text)
+
+    $builder = New-Object System.Text.StringBuilder
+    $inString = $false
+    $escaped = $false
+    $lineComment = $false
+    $blockComment = $false
+
+    for ($i = 0; $i -lt $Text.Length; $i++) {
+        $ch = $Text[$i]
+        $next = if ($i + 1 -lt $Text.Length) { $Text[$i + 1] } else { [char]0 }
+
+        if ($lineComment) {
+            if ($ch -eq "`n") {
+                $lineComment = $false
+                [void]$builder.Append($ch)
+            }
+            continue
+        }
+
+        if ($blockComment) {
+            if ($ch -eq '*' -and $next -eq '/') {
+                $blockComment = $false
+                $i++
+            }
+            continue
+        }
+
+        if ($inString) {
+            [void]$builder.Append($ch)
+            if ($escaped) {
+                $escaped = $false
+            } elseif ($ch -eq '\') {
+                $escaped = $true
+            } elseif ($ch -eq '"') {
+                $inString = $false
+            }
+            continue
+        }
+
+        if ($ch -eq '"') {
+            $inString = $true
+            [void]$builder.Append($ch)
+            continue
+        }
+
+        if ($ch -eq '/' -and $next -eq '/') {
+            $lineComment = $true
+            $i++
+            continue
+        }
+
+        if ($ch -eq '/' -and $next -eq '*') {
+            $blockComment = $true
+            $i++
+            continue
+        }
+
+        [void]$builder.Append($ch)
+    }
+
+    return ($builder.ToString() -replace ',\s*([}\]])', '$1')
+}
+
+function Read-SettingsObject {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { return [ordered]@{} }
+    $raw = Get-Content $Path -Raw
+    if ([string]::IsNullOrWhiteSpace($raw)) { return [ordered]@{} }
+    $parsed = (Strip-Jsonc $raw) | ConvertFrom-Json
+    $result = [ordered]@{}
+    $parsed.PSObject.Properties | ForEach-Object { $result[$_.Name] = $_.Value }
+    return $result
+}
+
+function Write-SettingsObject {
+    param([string]$Path, [hashtable]$Settings)
+    $json = [PSCustomObject]$Settings | ConvertTo-Json -Depth 100
+    Set-Content -Path $Path -Value $json -Encoding UTF8
+}
+
+function Copy-ExtensionItem {
+    param([string]$Name, [string]$Destination)
+    $source = Join-Path $scriptDir $Name
+    if (Test-Path $source) {
+        Copy-Item $source $Destination -Recurse -Force
+    }
+}
+
+Write-Host "Islands Dark installer" -ForegroundColor Cyan
+Write-Host "This installs the theme, Custom CSS and JS Loader, fonts, and a CSS import setting." -ForegroundColor Cyan
+Write-Host "It merges settings instead of replacing your settings.json." -ForegroundColor Cyan
 Write-Host ""
 
-# Check if VS Code is installed
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$package = Get-Content (Join-Path $scriptDir "package.json") -Raw | ConvertFrom-Json
+$extensionDirName = "$($package.publisher).$($package.name)-$($package.version)"
+$extensionDir = Join-Path $env:USERPROFILE ".vscode\extensions\$extensionDirName"
+
 $codePath = Get-Command "code" -ErrorAction SilentlyContinue
 if (-not $codePath) {
-    # Try to find code in common locations
     $possiblePaths = @(
         "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
         "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
         "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd"
     )
-
-    $found = $false
-    foreach ($path in $possiblePaths) {
-        if (Test-Path $path) {
-            $env:Path += ";$(Split-Path $path)"
-            $found = $true
+    foreach ($candidate in $possiblePaths) {
+        if (Test-Path $candidate) {
+            $codePath = Get-Item $candidate
             break
         }
     }
-
-    if (-not $found) {
-        Write-Host "Error: VS Code CLI (code) not found!" -ForegroundColor Red
-        Write-Host "Please install VS Code and make sure 'code' command is in your PATH."
-        Write-Host "You can do this by:"
-        Write-Host "  1. Open VS Code"
-        Write-Host "  2. Press Ctrl+Shift+P"
-        Write-Host "  3. Type 'Shell Command: Install code command in PATH'"
-        exit 1
-    }
+}
+if (-not $codePath) {
+    throw "VS Code CLI 'code' was not found. Install VS Code or add the code command to PATH."
 }
 
-Write-Host "VS Code CLI found" -ForegroundColor Green
-
-# Get the directory where this script is located
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-Write-Host ""
-Write-Host "Step 1: Installing Islands Dark theme extension..."
-
-# Install by copying to VS Code extensions directory
-$extDir = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
-if (Test-Path $extDir) {
-    Remove-Item -Recurse -Force $extDir
+Write-Host "Installing Islands Dark theme extension to $extensionDir..."
+if (Test-Path $extensionDir) {
+    Remove-Item -Recurse -Force $extensionDir
 }
-New-Item -ItemType Directory -Path $extDir -Force | Out-Null
-Copy-Item "$scriptDir\package.json" "$extDir\" -Force
-Copy-Item "$scriptDir\themes" "$extDir\themes" -Recurse -Force
+New-Item -ItemType Directory -Path $extensionDir -Force | Out-Null
+Copy-ExtensionItem "package.json" $extensionDir
+Copy-ExtensionItem "README.md" $extensionDir
+Copy-ExtensionItem "themes" $extensionDir
+Copy-ExtensionItem "custom-css" $extensionDir
+Copy-ExtensionItem "assets" $extensionDir
+Copy-ExtensionItem "fonts" $extensionDir
+Copy-ExtensionItem "icon.png" $extensionDir
 
-if (Test-Path "$extDir\themes") {
-    Write-Host "Theme extension installed to $extDir" -ForegroundColor Green
-} else {
-    Write-Host "Failed to install theme extension" -ForegroundColor Red
-    exit 1
-}
+Write-Host "Installing Custom CSS and JS Loader..."
+& $codePath.Source --install-extension be5invis.vscode-custom-css --force | Out-Host
 
-# Remove extensions.json so VS Code rebuilds it cleanly on next launch
-# (previous versions of this script wrote invalid content to this file)
-$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
-if (Test-Path $extJsonPath) {
-    Remove-Item $extJsonPath -Force
-    Write-Host "Cleared extensions.json (VS Code will rebuild it)" -ForegroundColor Green
-}
-
-Write-Host ""
-Write-Host "Step 2: Installing Custom UI Style extension..."
-try {
-    $output = code --install-extension subframe7536.custom-ui-style --force 2>&1
-    Write-Host "Custom UI Style extension installed" -ForegroundColor Green
-} catch {
-    Write-Host "Could not install Custom UI Style extension automatically" -ForegroundColor Yellow
-    Write-Host "   Please install it manually from the Extensions marketplace"
-}
-
-Write-Host ""
-Write-Host "Step 3: Installing Bear Sans UI fonts..."
-$fontDir = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
-
-# Try user fonts first
-if (-not (Test-Path $fontDir)) {
+if (-not $SkipFonts) {
+    Write-Host "Installing bundled Bear Sans UI fonts..."
+    $fontDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
     New-Item -ItemType Directory -Path $fontDir -Force | Out-Null
-}
-
-try {
-    $fonts = Get-ChildItem "$scriptDir\fonts\*.otf"
-    foreach ($font in $fonts) {
-        try {
-            Copy-Item $font.FullName $fontDir -Force -ErrorAction SilentlyContinue
-        } catch {
-            # Silently continue if copy fails
-        }
+    Get-ChildItem (Join-Path $scriptDir "fonts\*.otf") -ErrorAction SilentlyContinue | ForEach-Object {
+        Copy-Item $_.FullName $fontDir -Force -ErrorAction SilentlyContinue
     }
-
-    Write-Host "Fonts installed" -ForegroundColor Green
-    Write-Host "   Note: You may need to restart applications to use the new fonts" -ForegroundColor DarkGray
-} catch {
-    Write-Host "Could not install fonts automatically" -ForegroundColor Yellow
-    Write-Host "   Please manually install the fonts from the 'fonts/' folder"
-    Write-Host "   Select all .otf files and right-click > Install"
 }
 
-Write-Host ""
-Write-Host "Step 4: Applying VS Code settings..."
-$settingsDir = "$env:APPDATA\Code\User"
-if (-not (Test-Path $settingsDir)) {
-    New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null
-}
-
+$cssPath = Join-Path $extensionDir "custom-css\islands-dark.css"
+$settingsDir = Join-Path $env:APPDATA "Code\User"
+New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null
 $settingsFile = Join-Path $settingsDir "settings.json"
-
-# Backup existing settings if they exist
 if (Test-Path $settingsFile) {
-    $backupFile = "$settingsFile.pre-islands-dark"
-    Copy-Item $settingsFile $backupFile -Force
-    Write-Host "Existing settings.json backed up to:" -ForegroundColor Yellow
-    Write-Host "   $backupFile"
-    Write-Host "   You can restore your old settings from this file if needed."
+    $backup = "$settingsFile.pre-islands-dark"
+    Copy-Item $settingsFile $backup -Force
+    Write-Host "Backed up settings to $backup" -ForegroundColor Yellow
 }
 
-# Copy Islands Dark settings
-Copy-Item "$scriptDir\settings.json" $settingsFile -Force
-Write-Host "Islands Dark settings applied" -ForegroundColor Green
-
-Write-Host ""
-Write-Host "Step 5: Enabling Custom UI Style..."
-
-# Check if this is the first run
-$firstRunFile = Join-Path $scriptDir ".islands_dark_first_run"
-if (-not (Test-Path $firstRunFile)) {
-    New-Item -ItemType File -Path $firstRunFile | Out-Null
-    Write-Host ""
-    Write-Host "Important Notes:" -ForegroundColor Yellow
-    Write-Host "   - IBM Plex Mono and FiraCode Nerd Font Mono need to be installed separately"
-    Write-Host "   - After VS Code reloads, you may see a 'corrupt installation' warning"
-    Write-Host "   - This is expected - click the gear icon and select 'Don't Show Again'"
-    Write-Host ""
-    Read-Host "Press Enter to continue and reload VS Code"
+$settings = Read-SettingsObject $settingsFile
+$cssUrl = ConvertTo-FileUrl $cssPath
+$imports = @()
+if ($settings.Contains('vscode_custom_css.imports') -and $settings['vscode_custom_css.imports']) {
+    $imports = @($settings['vscode_custom_css.imports'])
 }
-
-Write-Host "   Applying CSS customizations..."
-
-Write-Host ""
-Write-Host "Islands Dark theme has been installed!" -ForegroundColor Green
-Write-Host ""
-
-# Quit VS Code and relaunch so Custom UI Style fully initializes and patches CSS
-Write-Host "   Closing VS Code..." -ForegroundColor Cyan
-Stop-Process -Name "Code" -Force -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 3
-
-Write-Host "   Relaunching VS Code..." -ForegroundColor Cyan
-Start-Process "code" -ErrorAction SilentlyContinue
+if ($imports -notcontains $cssUrl) {
+    $imports += $cssUrl
+}
+$settings['vscode_custom_css.imports'] = $imports
+$settings['vscode_custom_css.statusbar'] = $true
+$settings['workbench.colorTheme'] = 'Islands Dark'
+Write-SettingsObject $settingsFile $settings
 
 Write-Host ""
-Write-Host "Done!" -ForegroundColor Green
+Write-Host "Installed. Final step:" -ForegroundColor Green
+Write-Host "1. Restart VS Code as Administrator if your install directory requires it."
+Write-Host "2. Run Command Palette > Enable Custom CSS and JS, or Reload Custom CSS and JS."
+Write-Host "3. Reload VS Code."
 Write-Host ""
-Write-Host "If the CSS customizations are not applied, open the Command Palette" -ForegroundColor Yellow
-Write-Host "(Ctrl+Shift+P) and run: Custom UI Style: Reload" -ForegroundColor Yellow
-
-Start-Sleep -Seconds 3
+Write-Host "CSS import added: $cssUrl"

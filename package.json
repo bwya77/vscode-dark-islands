@@ -1,7 +1,7 @@
 {
   "name": "islands-dark",
   "displayName": "Islands Dark",
-  "description": "A dark color theme inspired by JetBrains Islands Dark — deep backgrounds, warm syntax highlighting, and a clean modern aesthetic.",
+  "description": "A custom VS Code UI theme with a dark color theme and an Islands workbench CSS layer.",
   "version": "0.0.2",
   "publisher": "bwya77",
   "license": "MIT",
@@ -15,14 +15,16 @@
     "dark",
     "theme",
     "islands",
-    "jetbrains",
-    "color theme"
+    "custom css",
+    "workbench"
   ],
-  "icon": "icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/bwya77/vscode-dark-islands"
   },
+  "extensionDependencies": [
+    "be5invis.vscode-custom-css"
+  ],
   "contributes": {
     "themes": [
       {

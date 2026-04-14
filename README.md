@@ -1,310 +1,146 @@
-# Islands Dark
+﻿# Islands Dark
 
-<a href="https://www.buymeacoffee.com/bwya77" style="margin-right: 10px;">
-    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" />
-</a>
-<a href="https://github.com/sponsors/bwya77">
-    <img src="https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA" />
-</a>
-
-
-A dark color theme for Visual Studio Code inspired by the easemate IDE. Features floating glass-like panels, rounded corners, smooth animations, and a deeply refined UI.
-
-- [easemate](https://x.com/easemate)
-- [easemate Nav](https://x.com/Jakubantalik/status/1952672176450215944)
-- [easemate effects](https://x.com/aaroniker/status/1989727838992539655)
-
+A custom VS Code UI theme built around the Islands Dark color theme and a workbench CSS layer. The CSS layer is the main visual effect: floating panels, rounded corners, glass borders, a pill activity bar, subtle shadows, and quieter chrome.
 
 ![Islands Dark Screenshot](assets/CleanShot%202026-02-19%20at%2019.37.59@2x.png)
 
-## Features
+## Important
 
-- Deep dark canvas (`#131217`) with floating panels
-- Glass-effect borders with directional light simulation (brighter top/left, subtle bottom/right)
-- Rounded corners on all panels, notifications, command palette, and sidebars
-- Pill-shaped activity bar with glass selection indicators
-- Breadcrumb bar and status bar that dim when not hovered
-- Tab close buttons that fade in on hover
-- Smooth transitions on sidebar selections, scrollbars, and status bar
-- Pill-shaped scrollbar thumbs
-- Color-matched icon glow effect (works best with [Seti Folder](https://marketplace.visualstudio.com/items?itemName=l-igh-t.vscode-theme-seti-folder) icon theme)
-- Warm syntax highlighting with comprehensive language support (JS/TS, Python, Go, Rust, HTML/CSS, JSON, YAML, Markdown)
-- IBM Plex Mono in the editor, FiraCode Nerd Font Mono in the terminal
+VS Code does not officially support custom CSS for the main workbench. Islands Dark uses [Custom CSS and JS Loader](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) to apply `custom-css/islands-dark.css` to VS Code's workbench HTML.
 
-![Islands Dark Screenshot UI](assets/CleanShot%202026-02-14%20at%2021.45.00@2x.png)
+That means:
 
-## Installation
+- VS Code may show a corrupt installation warning after enabling custom CSS.
+- VS Code updates can remove the patch; run **Reload Custom CSS and JS** again after updates.
+- Admin permissions may be required if VS Code is installed in a protected location.
+- This package ships CSS only. It does not require custom JavaScript.
 
-This theme has two parts: a **color theme** and **CSS customizations** that create the floating glass panel look.
+## What This Repo Provides
 
-### One-Liner Install (Recommended)
+- A normal VS Code color theme: `themes/islands-dark.json`
+- A custom workbench stylesheet: `custom-css/islands-dark.css`
+- Optional Bear Sans UI fonts in `fonts/`
+- Convenience install scripts that merge settings instead of replacing your `settings.json`
 
-The fastest way to install:
+## Install
 
-#### macOS/Linux
+### Option 1: Scripted Install
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.sh | bash
-```
+The scripts install this local theme extension, install Custom CSS and JS Loader, install bundled Bear Sans UI fonts, and merge only these settings:
 
-#### Windows
+- `workbench.colorTheme`
+- `vscode_custom_css.imports`
+- `vscode_custom_css.statusbar`
 
-```powershell
-irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
-```
+They do not replace your full `settings.json`.
 
-### Manual Clone Install
-
-If you prefer to clone first:
-
-#### macOS/Linux
-
-```bash
-git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
-cd islands-dark
-./install.sh
-```
-
-#### Windows
+Windows PowerShell:
 
 ```powershell
-git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
-cd islands-dark
 .\install.ps1
 ```
 
-The scripts will automatically:
-- ✅ Install the Islands Dark theme extension
-- ✅ Install the Custom UI Style extension
-- ✅ Install Bear Sans UI fonts
-- ✅ Back up your existing settings and apply Islands Dark settings
-- ✅ Enable Custom UI Style and reload VS Code
-
-> **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you).
-
-### Nix Flake Install
-
-If you use Nix, you can run a pre-configured instance of VS Code (or VSCodium) with the theme, extensions, and fonts already bundled.
-
-To run it directly without installing:
+macOS/Linux:
 
 ```bash
-# Run VS Code
-nix run github:bwya77/vscode-dark-islands#vscode
-
-# Or run VSCodium
-nix run github:bwya77/vscode-dark-islands#vscodium
+./install.sh
 ```
 
-To use it in your NixOS or Home Manager configuration, add it to your flake inputs:
+Then run one of these commands from VS Code's Command Palette:
 
-```nix
-{
-  inputs.islands-dark.url = "github:bwya77/vscode-dark-islands";
-
-  outputs = { self, nixpkgs, islands-dark, ... }: {
-    # Then you can add and use it:
-    # islands-dark.packages.${pkgs.stdenv.hostPlatform.system}.vscode
-    # islands-dark.packages.${pkgs.stdenv.hostPlatform.system}.vscodium
-  };
-}
+```text
+Enable Custom CSS and JS
 ```
 
-> **Note:** The Nix flake automatically includes the **Custom UI Style** extension, **Seti Folder** icon theme, and all required fonts (**Bear Sans UI**, **IBM Plex Mono**, and **FiraCode Nerd Font**). It will also copy the recommended `settings.json` on the first run.
+or:
 
-### Manual Installation
-
-If you prefer to install manually, follow these steps:
-
-#### Step 1: Install the theme
-
-Clone this repo and copy the extension files:
-
-```bash
-git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
-cd islands-dark
-mkdir -p ~/.vscode/extensions/bwya77.islands-dark-1.0.0
-cp package.json ~/.vscode/extensions/bwya77.islands-dark-1.0.0/
-cp -r themes ~/.vscode/extensions/bwya77.islands-dark-1.0.0/
+```text
+Reload Custom CSS and JS
 ```
 
-On Windows (PowerShell):
-```powershell
-git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
-cd islands-dark
-$ext = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
-New-Item -ItemType Directory -Path $ext -Force
-Copy-Item package.json $ext\
-Copy-Item themes $ext\themes -Recurse
-```
+Reload VS Code when prompted.
 
-#### Step 2: Install the Custom UI Style extension
+### Option 2: Manual Install
 
-The floating panels, rounded corners, glass borders, and animations are powered by the **Custom UI Style** extension.
-
-1. Open **Extensions** in VS Code: (`Cmd+Shift+X` / `Ctrl+Shift+X`)
-2. Search for **Custom UI Style** (by `subframe7536`)
-3. Click **Install**
-
-#### Step 3: Install recommended icon theme
-
-For the best experience with the color-matched icon glow effect, install the **Seti Folder** icon theme:
-
-1. Open **Extensions** in VS Code (`Cmd+Shift+X` / `Ctrl+Shift+X`)
-2. Search for **[Seti Folder](https://marketplace.visualstudio.com/items?itemName=l-igh-t.vscode-theme-seti-folder)** (by `l-igh-t`)
-3. Click **Install**
-4. Set it as your icon theme: **Command Palette** > **Preferences: File Icon Theme** > **Seti Folder**
-
-#### Step 5: Install fonts
-
-This theme uses two fonts:
-
-- **IBM Plex Mono** — used in the editor
-- **FiraCode Nerd Font Mono** — used in the terminal
-- **Bear Sans UI** — used in the sidebar, tabs, command center, and status bar (included in `fonts/` folder)
-
-To install Bear Sans UI:
-1. Open the `fonts/` folder in this repo
-2. Select all `.otf` files and double-click to open in Font Book (macOS) or right-click > Install (Windows)
-
-If you prefer different fonts, update the `editor.fontFamily`, `terminal.integrated.fontFamily`, and `font-family` values in the settings.
-
-#### Step 6: Apply the settings
-
-Copy the contents of `settings.json` from this repo into your VS Code: settings:
-
-1. Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-2. Search for **Preferences: Open User Settings (JSON)**
-3. Merge the contents of this repo's `settings.json` into your settings file
-
-> **Note:** If you already have existing settings, merge carefully. The key settings are `workbench.colorTheme`, `custom-ui-style.stylesheet`, and the font/indent preferences.
-
-#### Step 7: Enable Custom UI Style
-
-1. Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-2. Run **Custom UI Style: Enable**
-3. VS Code will reload
-
-> **Note:** You may see a "corrupt installation" warning after enabling. This is expected since Custom UI Style injects CSS into VS Code. Click the gear icon on the warning and select **Don't Show Again**.
-
-## What the CSS customizations do
-
-| **Element** | **Effect** |
-|-------------|------------|
-| **Canvas** | Deep dark background (`--islands-bg-canvas`) behind all panels |
-| **Sidebar** | Floating with rounded corners (`--islands-panel-radius`), glass borders, drop shadow |
-| **Editor** | Floating with rounded corners (`--islands-panel-radius`), glass borders, browser-tab effect |
-| **Activity bar** | Pill-shaped with glass inset shadows, circular selection indicator |
-| **Command center** | Pill-shaped with glass effect |
-| **Bottom panel** | Floating with rounded corners (`--islands-panel-radius`), glass borders |
-| **Right sidebar** | Floating with rounded corners (`--islands-panel-radius`), glass borders |
-| **Notifications** | Rounded corners (`--islands-widget-radius`), glass borders, deep drop shadow |
-| **Command palette** | Rounded corners (`--islands-widget-radius`), glass borders, rounded list rows |
-| **Scrollbars** | Pill-shaped thumbs with fade transition |
-| **Tabs** | Browser-tab style (active tab open at bottom), close button fades in on hover |
-| **Breadcrumbs** | Hidden until hover with smooth fade transition |
-| **Status bar** | Dimmed text that brightens on hover |
-| **File icons** | Color-matched glow via drop-shadow (best with Seti Folder icon theme) |
-
-## Customization
-
-All key visual properties are controlled by CSS custom properties defined at the top of the `custom-ui-style.stylesheet` in `settings.json`. Edit the variables on `.monaco-workbench` to quickly adjust the look:
+1. Install this theme extension from the repo or VSIX.
+2. Install [Custom CSS and JS Loader](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css).
+3. Add this setting, changing the path to your local checkout:
 
 ```json
-".monaco-workbench": {
-    "--islands-panel-radius": "24px",
-    "--islands-widget-radius": "14px",
-    "--islands-input-radius": "12px",
-    "--islands-item-radius": "6px",
-    "--islands-panel-gap": "8px",
-    "--islands-panel-top": "8px",
-    "--islands-bg-canvas": "#121216",
-    "--islands-bg-surface": "#181a1d",
-    "background-color": "var(--islands-bg-canvas) !important"
-}
+"vscode_custom_css.imports": [
+  "file:///C:/Dhyan/repos/vscode-dark-islands/custom-css/islands-dark.css"
+]
 ```
 
-### Colors
+On macOS/Linux, use a file URL like:
 
-| **Variable** | **Default** | **Applies to** |
-|--------------|-------------|----------------|
-| `--islands-bg-canvas` | `#121216` | Deep background behind all panels (workbench, title bar, status bar, activity bar) |
-| `--islands-bg-surface` | `#181a1d` | Panel/surface background (chat input, editor widgets) |
+```json
+"vscode_custom_css.imports": [
+  "file:///Users/you/repos/vscode-dark-islands/custom-css/islands-dark.css"
+]
+```
 
-These two colors define the theme's depth. The canvas is the darker base layer visible between panels, while the surface is the slightly lighter color used for interactive elements. To override the theme's panel colors (sidebar, editor, terminal backgrounds), use VS Code's `workbench.colorCustomizations` in your settings.
+4. Select the color theme:
 
-### Border Radius
+```json
+"workbench.colorTheme": "Islands Dark"
+```
 
-| **Variable** | **Default** | **Applies to** |
-|--------------|-------------|----------------|
-| `--islands-panel-radius` | `24px` | Sidebar, editor, terminal/bottom panel, auxiliary bar |
-| `--islands-widget-radius` | `14px` | Notifications, chat input, command palette |
-| `--islands-input-radius` | `12px` | Search bars, SCM commit input, buttons, hover tooltips |
-| `--islands-item-radius` | `6px` | List rows, tabs, pane headers, terminal tabs |
+5. Run **Enable Custom CSS and JS** or **Reload Custom CSS and JS**.
+6. Reload VS Code.
 
-For example, to make everything sharper, set all values to `8px`. For a fully rounded look, try `32px` / `20px` / `16px` / `8px`. Pill-shaped elements (activity bar, scrollbar thumbs, command center, badges) are not affected by these variables.
+## Fonts
 
-### Panel Spacing
+The custom CSS references:
 
-| **Variable** | **Default** | **Applies to** |
-|--------------|-------------|----------------|
-| `--islands-panel-gap` | `8px` | Horizontal spacing between sidebar, editor, chat/auxiliary bar, terminal, and notifications |
-| `--islands-panel-top` | `8px` | Top margin of panels (space below the title bar) |
+- `Bear Sans UI`
+- `Bear Sans UI Heading`
 
-Increase to `12px` or `16px` for a more spaced-out layout, or reduce to `4px` for a tighter look.
+The font files are included in `fonts/`. If they are not installed, VS Code falls back to your system sans-serif font. For the closest look, install the `.otf` files from `fonts/`.
+
+Recommended editor and terminal fonts are optional:
+
+```json
+"editor.fontFamily": "IBM Plex Mono, Consolas, monospace",
+"terminal.integrated.fontFamily": "FiraCode Nerd Font Mono, Consolas, monospace"
+```
+
+## Uninstall
+
+1. Run **Disable Custom CSS and JS** from the Command Palette. This asks Custom CSS and JS Loader to restore VS Code's patched workbench file.
+2. Remove the Islands Dark CSS URL from `vscode_custom_css.imports`.
+3. Change to another color theme or uninstall Islands Dark.
+4. Reload VS Code.
+
+The helper scripts remove only the Islands Dark CSS import from settings:
+
+Windows:
+
+```powershell
+.\uninstall.ps1
+```
+
+macOS/Linux:
+
+```bash
+./uninstall.sh
+```
+
+If VS Code still reports a corrupt installation after disabling custom CSS, update or reinstall VS Code to restore the official app files.
 
 ## Troubleshooting
 
-### Changes aren't taking effect
-Try disabling and re-enabling Custom UI Style:
-1. **Command Palette** > **Custom UI Style: Disable**
-2. Reload VS Code
-3. **Command Palette** > **Custom UI Style: Enable**
-4. Reload VS Code
+### CSS did not apply
 
-### "Corrupt installation" warning
-This is expected after enabling Custom UI Style. Dismiss it or select **Don't Show Again**.
+Run **Reload Custom CSS and JS** and reload VS Code. If VS Code is installed under `Program Files` or another protected location, restart VS Code as Administrator and run the command again.
 
-### Previously used "Custom CSS and JS Loader" extension
-If you previously used the **Custom CSS and JS Loader** extension (`be5invis.vscode-custom-css`), it may have injected CSS directly into VS Code's `workbench.html` that persists even after disabling. If styles conflict, reinstall VS Code to get a clean `workbench.html`, then use only **Custom UI Style**.
+### CSS disappeared after update
 
-## Uninstalling
+VS Code updates replace the patched workbench HTML. Run **Reload Custom CSS and JS** again.
 
-Run the uninstall script to restore your VS Code to its previous state:
+### I previously used Custom UI Style
 
-**macOS/Linux:**
-```bash
-# If you still have the repo cloned:
-cd islands-dark
-./uninstall.sh
-
-# Or download and run directly:
-curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.sh | bash
-```
-
-**Windows (PowerShell):**
-```powershell
-# If you still have the repo cloned:
-cd islands-dark
-.\uninstall.ps1
-
-# Or download and run directly:
-irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.ps1 | iex
-```
-
-The uninstall script will:
-- Restore your previous settings from the `settings.json.pre-islands-dark` backup
-- Remove the Islands Dark theme extension
-- Unregister the extension from VS Code
-
-After running the script, you'll need to:
-1. Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **Custom UI Style: Disable**
-2. Open **Command Palette** and search **Preferences: Color Theme** to select a new theme
-3. Reload VS Code
-
-## Credits
-
-Inspired by the [JetBrains Islands Dark](https://www.jetbrains.com/) UI theme.
+Remove any `custom-ui-style.stylesheet` settings from your settings file, then use only `vscode_custom_css.imports` for Islands Dark.
 
 ## License
 

@@ -2,6 +2,15 @@
 .github
 .vscode
 node_modules
+issues
+flake.nix
+flake.lock
+settings.json
+settings.json.*
+.islands_dark_first_run*
+install-antigravity.*
+merge-settings.ps1
+animations.css
 *.md
 !README.md
 .gitignore

@@ -1,81 +1,105 @@
-# Islands Dark Theme Uninstaller for Windows
+# Islands Dark Windows uninstaller
 
 param()
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "Islands Dark Theme Uninstaller for Windows" -ForegroundColor Cyan
-Write-Host "===========================================" -ForegroundColor Cyan
-Write-Host ""
+function Strip-Jsonc {
+    param([string]$Text)
 
-# Step 1: Restore old settings
-Write-Host "Step 1: Restoring VS Code settings..."
-$settingsDir = "$env:APPDATA\Code\User"
-$settingsFile = Join-Path $settingsDir "settings.json"
-$backupFile = "$settingsFile.pre-islands-dark"
+    $builder = New-Object System.Text.StringBuilder
+    $inString = $false
+    $escaped = $false
+    $lineComment = $false
+    $blockComment = $false
 
-if (Test-Path $backupFile) {
-    Copy-Item $backupFile $settingsFile -Force
-    Write-Host "Settings restored from backup" -ForegroundColor Green
-    Write-Host "   Backup file: $backupFile"
-} else {
-    Write-Host "No backup found at $backupFile" -ForegroundColor Yellow
-    Write-Host "   You may need to manually update your VS Code settings."
-}
+    for ($i = 0; $i -lt $Text.Length; $i++) {
+        $ch = $Text[$i]
+        $next = if ($i + 1 -lt $Text.Length) { $Text[$i + 1] } else { [char]0 }
 
-# Step 2: Disable Custom UI Style
-Write-Host ""
-Write-Host "Step 2: Disabling Custom UI Style..."
-Write-Host "   Please disable Custom UI Style manually:" -ForegroundColor Yellow
-Write-Host "   1. Open Command Palette (Ctrl+Shift+P)"
-Write-Host "   2. Run 'Custom UI Style: Disable'"
-Write-Host "   3. VS Code will reload"
-
-# Step 3: Remove theme extension
-Write-Host ""
-Write-Host "Step 3: Removing Islands Dark theme extension..."
-$extDir = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
-if (Test-Path $extDir) {
-    Remove-Item -Recurse -Force $extDir
-    Write-Host "Theme extension removed" -ForegroundColor Green
-} else {
-    Write-Host "Extension directory not found (may already be removed)" -ForegroundColor Yellow
-}
-
-# Step 4: Remove extension from extensions.json
-Write-Host ""
-Write-Host "Step 4: Unregistering extension..."
-$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
-try {
-    if (Test-Path $extJsonPath) {
-        $extensions = Get-Content $extJsonPath -Raw | ConvertFrom-Json
-        $before = $extensions.Count
-        $extensions = @($extensions | Where-Object {
-            $_.identifier.id -ne 'bwya77.islands-dark' -and
-            $_.identifier.id -ne 'your-publisher-name.islands-dark'
-        })
-        if ($extensions.Count -lt $before) {
-            $extensions | ConvertTo-Json -Depth 10 -Compress | Set-Content $extJsonPath
-            Write-Host "Extension unregistered" -ForegroundColor Green
-        } else {
-            Write-Host "Extension was not registered" -ForegroundColor Yellow
+        if ($lineComment) {
+            if ($ch -eq "`n") {
+                $lineComment = $false
+                [void]$builder.Append($ch)
+            }
+            continue
         }
+
+        if ($blockComment) {
+            if ($ch -eq '*' -and $next -eq '/') {
+                $blockComment = $false
+                $i++
+            }
+            continue
+        }
+
+        if ($inString) {
+            [void]$builder.Append($ch)
+            if ($escaped) {
+                $escaped = $false
+            } elseif ($ch -eq '\') {
+                $escaped = $true
+            } elseif ($ch -eq '"') {
+                $inString = $false
+            }
+            continue
+        }
+
+        if ($ch -eq '"') {
+            $inString = $true
+            [void]$builder.Append($ch)
+            continue
+        }
+
+        if ($ch -eq '/' -and $next -eq '/') {
+            $lineComment = $true
+            $i++
+            continue
+        }
+
+        if ($ch -eq '/' -and $next -eq '*') {
+            $blockComment = $true
+            $i++
+            continue
+        }
+
+        [void]$builder.Append($ch)
     }
-} catch {
-    Write-Host "Could not update extensions.json" -ForegroundColor Yellow
+
+    return ($builder.ToString() -replace ',\s*([}\]])', '$1')
 }
 
-# Step 5: Change theme
-Write-Host ""
-Write-Host "Step 5: Change your color theme..."
-Write-Host "   1. Open Command Palette (Ctrl+Shift+P)"
-Write-Host "   2. Search for 'Preferences: Color Theme'"
-Write-Host "   3. Select your preferred theme"
+function ConvertTo-FileUrl {
+    param([string]$Path)
+    $resolved = [System.IO.Path]::GetFullPath($Path)
+    return ([System.Uri]$resolved).AbsoluteUri
+}
+
+Write-Host "Islands Dark uninstaller" -ForegroundColor Cyan
+
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$package = Get-Content (Join-Path $scriptDir "package.json") -Raw | ConvertFrom-Json
+$extensionDirName = "$($package.publisher).$($package.name)-$($package.version)"
+$extensionDir = Join-Path $env:USERPROFILE ".vscode\extensions\$extensionDirName"
+$cssUrls = @(
+    (ConvertTo-FileUrl (Join-Path $extensionDir "custom-css\islands-dark.css")),
+    (ConvertTo-FileUrl (Join-Path $scriptDir "custom-css\islands-dark.css"))
+) | Select-Object -Unique
+$settingsFile = Join-Path $env:APPDATA "Code\User\settings.json"
+
+if (Test-Path $settingsFile) {
+    Copy-Item $settingsFile "$settingsFile.pre-islands-dark-uninstall" -Force
+    $raw = Get-Content $settingsFile -Raw
+    $settings = if ([string]::IsNullOrWhiteSpace($raw)) { [ordered]@{} } else { (Strip-Jsonc $raw) | ConvertFrom-Json }
+    $map = [ordered]@{}
+    $settings.PSObject.Properties | ForEach-Object { $map[$_.Name] = $_.Value }
+    if ($map.Contains('vscode_custom_css.imports')) {
+        $map['vscode_custom_css.imports'] = @($map['vscode_custom_css.imports'] | Where-Object { $cssUrls -notcontains $_ })
+    }
+    [PSCustomObject]$map | ConvertTo-Json -Depth 100 | Set-Content $settingsFile -Encoding UTF8
+    Write-Host "Removed Islands Dark CSS import from settings.json." -ForegroundColor Green
+}
 
 Write-Host ""
-Write-Host "Islands Dark has been uninstalled!" -ForegroundColor Green
-Write-Host ""
-Write-Host "   Reload VS Code to complete the process."
-Write-Host ""
-
-Start-Sleep -Seconds 3
+Write-Host "Run Command Palette > Disable Custom CSS and JS to restore VS Code's patched workbench file." -ForegroundColor Yellow
+Write-Host "Then uninstall the Islands Dark extension normally if desired."
