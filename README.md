@@ -13,7 +13,7 @@ That means:
 - VS Code may show a corrupt installation warning after enabling custom CSS.
 - VS Code updates can remove the patch; run **Reload Custom CSS and JS** again after updates.
 - Admin permissions may be required if VS Code is installed in a protected location.
-- This package ships CSS only. It does not require custom JavaScript.
+- The workbench customization is CSS only. It does not require custom JavaScript.
 
 ## What This Repo Provides
 
@@ -42,6 +42,8 @@ macOS/Linux:
 ./install.sh
 ```
 
+After the script runs, copy the printed settings into your VS Code `settings.json`.
+
 Then run one of these commands from VS Code's Command Palette:
 
 ```text
@@ -62,13 +64,29 @@ Install the `.otf` files from `fonts/` manually if you want the exact typography
 
 1. Install this theme extension from the repo, VSIX, or the helper script.
 2. Install [Custom CSS and JS Loader](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css).
-3. Add these settings, changing the CSS path to your local checkout:
+3. Put `custom-css/islands-dark.css` somewhere stable on your machine.
+
+The CSS file can stay inside this repo checkout, for example:
+
+```text
+C:\Users\you\vscode-dark-islands\custom-css\islands-dark.css
+```
+
+or:
+
+```text
+/Users/you/vscode-dark-islands/custom-css/islands-dark.css
+```
+
+You can also copy just `islands-dark.css` somewhere else if you prefer. The only requirement is that the file stays there, because VS Code will load it from the path in `vscode_custom_css.imports`.
+
+4. Add these settings, changing the CSS path to your real absolute path:
 
 ```json
 "workbench.colorTheme": "Islands Dark",
 "vscode_custom_css.statusbar": true,
 "vscode_custom_css.imports": [
-  "file:///C:/Dhyan/repos/vscode-dark-islands/custom-css/islands-dark.css"
+  "file:///C:/Users/you/vscode-dark-islands/custom-css/islands-dark.css"
 ]
 ```
 
@@ -78,12 +96,12 @@ On macOS/Linux, use a file URL like:
 "workbench.colorTheme": "Islands Dark",
 "vscode_custom_css.statusbar": true,
 "vscode_custom_css.imports": [
-  "file:///Users/you/repos/vscode-dark-islands/custom-css/islands-dark.css"
+  "file:///Users/you/vscode-dark-islands/custom-css/islands-dark.css"
 ]
 ```
 
-4. Run **Enable Custom CSS and JS** or **Reload Custom CSS and JS**.
-5. Reload VS Code.
+5. Run **Enable Custom CSS and JS** or **Reload Custom CSS and JS**.
+6. Reload VS Code.
 
 ## Fonts
 
