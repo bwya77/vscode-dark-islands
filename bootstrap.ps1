@@ -7,16 +7,19 @@ $ErrorActionPreference = "Stop"
 
 $RepoUrl = "https://github.com/bwya77/vscode-dark-islands.git"
 $Branch = "main"
-$InstallDir = Join-Path $env:TEMP "islands-dark-temp"
+$InstallDir = Join-Path $env:USERPROFILE "vscode-dark-islands"
 
-Write-Host "Downloading Islands Dark..." -ForegroundColor Cyan
-if (Test-Path $InstallDir) {
-    Remove-Item -Recurse -Force $InstallDir
+if (Test-Path (Join-Path $InstallDir ".git")) {
+    Write-Host "Updating Islands Dark at $InstallDir..." -ForegroundColor Cyan
+    git -C $InstallDir pull --ff-only
+} elseif (Test-Path $InstallDir) {
+    throw "Install directory already exists but is not a git checkout: $InstallDir"
+} else {
+    Write-Host "Downloading Islands Dark to $InstallDir..." -ForegroundColor Cyan
+    git clone $RepoUrl $InstallDir --quiet --branch $Branch
 }
-
-git clone $RepoUrl $InstallDir --quiet --branch $Branch
 
 Write-Host "Running installer..." -ForegroundColor Cyan
 & (Join-Path $InstallDir "install.ps1")
 
-Write-Host "Temporary files kept at: $InstallDir" -ForegroundColor Yellow
+Write-Host "Keep this folder in place. The CSS import points to it: $InstallDir" -ForegroundColor Yellow

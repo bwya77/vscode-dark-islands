@@ -20,19 +20,15 @@ That means:
 - A normal VS Code color theme: `themes/islands-dark.json`
 - A custom workbench stylesheet: `custom-css/islands-dark.css`
 - Optional Bear Sans UI fonts in `fonts/`
-- Convenience install scripts that merge settings instead of replacing your `settings.json`
+- Minimal helper scripts that install only the native color theme and print the manual CSS setup
 
 ## Install
 
 ### Option 1: Scripted Install
 
-The scripts install this local theme extension, install Custom CSS and JS Loader, install bundled Bear Sans UI fonts, and merge only these settings:
+The scripts install the native Islands Dark color theme into your local VS Code extensions folder and try to install Custom CSS and JS Loader with the `code` CLI.
 
-- `workbench.colorTheme`
-- `vscode_custom_css.imports`
-- `vscode_custom_css.statusbar`
-
-They do not replace your full `settings.json`.
+They do not edit `settings.json`, install fonts, enable custom CSS, or patch VS Code. The scripts print the exact settings and next steps after they run.
 
 Windows PowerShell:
 
@@ -60,13 +56,17 @@ Reload Custom CSS and JS
 
 Reload VS Code when prompted.
 
+Install the `.otf` files from `fonts/` manually if you want the exact typography.
+
 ### Option 2: Manual Install
 
-1. Install this theme extension from the repo or VSIX.
+1. Install this theme extension from the repo, VSIX, or the helper script.
 2. Install [Custom CSS and JS Loader](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css).
-3. Add this setting, changing the path to your local checkout:
+3. Add these settings, changing the CSS path to your local checkout:
 
 ```json
+"workbench.colorTheme": "Islands Dark",
+"vscode_custom_css.statusbar": true,
 "vscode_custom_css.imports": [
   "file:///C:/Dhyan/repos/vscode-dark-islands/custom-css/islands-dark.css"
 ]
@@ -75,19 +75,15 @@ Reload VS Code when prompted.
 On macOS/Linux, use a file URL like:
 
 ```json
+"workbench.colorTheme": "Islands Dark",
+"vscode_custom_css.statusbar": true,
 "vscode_custom_css.imports": [
   "file:///Users/you/repos/vscode-dark-islands/custom-css/islands-dark.css"
 ]
 ```
 
-4. Select the color theme:
-
-```json
-"workbench.colorTheme": "Islands Dark"
-```
-
-5. Run **Enable Custom CSS and JS** or **Reload Custom CSS and JS**.
-6. Reload VS Code.
+4. Run **Enable Custom CSS and JS** or **Reload Custom CSS and JS**.
+5. Reload VS Code.
 
 ## Fonts
 
@@ -112,7 +108,7 @@ Recommended editor and terminal fonts are optional:
 3. Change to another color theme or uninstall Islands Dark.
 4. Reload VS Code.
 
-The helper scripts remove only the Islands Dark CSS import from settings:
+The helper scripts remove only the locally copied native color theme folder. They do not edit `settings.json`.
 
 Windows:
 

@@ -5,8 +5,8 @@
 ### Changed
 - Extracted the workbench UI styles into `custom-css/islands-dark.css`.
 - Switched the custom CSS flow to depend on `be5invis.vscode-custom-css`.
-- Rewrote install scripts to merge only Islands Dark settings instead of replacing `settings.json`.
-- Rewrote uninstall scripts to remove only the Islands Dark CSS import.
+- Simplified install scripts so they only install the native color theme helper and print manual CSS setup.
+- Simplified uninstall scripts so they only remove the native color theme helper and print manual cleanup steps.
 
 ### Removed
 - Removed the `subframe7536.custom-ui-style` install path.
