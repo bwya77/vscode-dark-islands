@@ -5,7 +5,7 @@ param()
 
 $ErrorActionPreference = "Stop"
 
-echo "🏝️  Islands Dark Theme Bootstrap Installer"
+echo '🏝️  Islands Dark Theme Bootstrap Installer'
 echo "=========================================="
 echo ""
 
@@ -14,7 +14,7 @@ $Branch = "main"
 $TempRoot = if ([string]::IsNullOrWhiteSpace($env:TEMP)) { [System.IO.Path]::GetTempPath() } else { $env:TEMP }
 $InstallDir = Join-Path $TempRoot ("islands-dark-temp-{0}" -f ([guid]::NewGuid().ToString("N")))
 
-echo "📥 Step 1: Downloading Islands Dark..."
+echo '📥 Step 1: Downloading Islands Dark...'
 echo "   Repository: $RepoUrl"
 
 # Remove old temp directory if exists
@@ -30,16 +30,16 @@ try {
         throw "git clone exited with code $LASTEXITCODE"
     }
 } catch {
-    echo "❌ Failed to download Islands Dark"
+    echo '❌ Failed to download Islands Dark'
     echo "   Make sure Git is installed: https://git-scm.com/download/win"
     echo "   $($_.Exception.Message)"
     return
 }
 
-echo "✓ Downloaded successfully"
+echo '✓ Downloaded successfully'
 echo ""
 
-echo "🚀 Step 2: Running installer..."
+echo '🚀 Step 2: Running installer...'
 echo ""
 
 # Run installer
@@ -62,7 +62,7 @@ try {
 
 # Cleanup
 echo ""
-echo "🧹 Step 3: Cleaning up..."
+echo '🧹 Step 3: Cleaning up...'
 $remove = Read-Host "   Remove temporary files? (y/n)"
 if ($remove -eq 'y' -or $remove -eq 'Y') {
     try {
@@ -78,4 +78,4 @@ if ($remove -eq 'y' -or $remove -eq 'Y') {
 }
 
 echo ""
-echo "🎉 Done! Enjoy your Islands Dark theme!"
+echo '🎉 Done! Enjoy your Islands Dark theme!'
