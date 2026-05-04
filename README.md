@@ -53,6 +53,14 @@ curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/boo
 irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
 ```
 
+#### Antigravity (macOS)
+
+[Antigravity](https://antigravity.google) is Google's AI-powered IDE built as a fork of VS Code.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap-antigravity.sh | bash
+```
+
 ### Manual Clone Install
 
 If you prefer to clone first:
@@ -71,6 +79,22 @@ cd islands-dark
 git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
 cd islands-dark
 .\install.ps1
+```
+
+#### Antigravity (macOS)
+
+```bash
+git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+./install-antigravity.sh
+```
+
+#### Antigravity (Windows)
+
+```powershell
+git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+.\install-antigravity.ps1
 ```
 
 The scripts will automatically:
