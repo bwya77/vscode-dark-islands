@@ -1,3 +1,8 @@
+
+# WARNING PLEASE READ: This theme is in a highly experimental state, and can irreversibly break your VSCode!
+
+Installing and/or uninstalling this theme is highly likely to remove all VSCode extensions, factory reset settings.json, and can ruin your VSCode installation, with the only remedy being a complete reinstall. Please understand these risks, and create a complete backup (sync is not backup!) of your VSCode data before proceeding.
+
 # Islands Dark
 
 <a href="https://www.buymeacoffee.com/bwya77" style="margin-right: 10px;">
