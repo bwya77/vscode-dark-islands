@@ -1,5 +1,5 @@
 {
-  "// Islands Dark Settings v0.0.2": "",
+  "// Islands Dark Settings v0.0.3": "",
   "workbench.colorTheme": "Islands Dark",
   "editor.fontFamily": "IBM Plex Mono",
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
@@ -115,6 +115,9 @@
       "border-bottom": "1px solid rgba(255,255,255,0.03) !important",
       "border-right": "1px solid rgba(255,255,255,0.03) !important",
       "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
+   },
+   ".part.editor > .modal-editor-header": {
+      "height" : "60px !important"
    },
    ".editor-actions": {
       "padding-right": "20px !important",
@@ -466,11 +469,43 @@
    ".part.auxiliarybar .content": {
       "width": "100% !important"
    },
-   ".part.auxiliarybar .split-view-view": {
-      "max-height": "calc(100% - 24px) !important"
-   },
    ".part.auxiliarybar .header": {
       "padding-left": "8px !important"
+   },
+   ".part.auxiliarybar .chat-input-part": {
+   "position": "sticky !important",
+   "bottom": "0 !important",
+   "z-index": "10 !important"
+   },
+   ".part.auxiliarybar .interactive-input-part": {
+      "border-radius": "var(--islands-widget-radius) !important",
+      "overflow": "visible !important",
+      "flex-shrink": "0 !important"
+   },
+   ".part.auxiliarybar .interactive-session": {
+      "display": "flex !important",
+      "flex-direction": "column !important",
+      "height": "100% !important",
+      "overflow": "hidden !important"
+   },
+   ".part.auxiliarybar .interactive-list": {
+      "flex": "1 1 auto !important",
+      "overflow-y": "auto !important",
+      "min-height": "0 !important"
+   },
+   ".part.auxiliarybar .chat-input-container": {
+      "flex-shrink": "0 !important",
+      "overflow": "visible !important",
+      "min-height": "fit-content !important"
+   },
+   ".part.auxiliarybar .monaco-inputbox": {
+      "overflow": "visible !important"
+   },
+   ".part.auxiliarybar .split-view-view": {
+      "max-height": "100% !important",
+      "overflow": "hidden !important",
+      "display": "flex !important",
+      "flex-direction": "column !important"
    },
    ".quick-input-widget": {
       "border-radius": "var(--islands-widget-radius) !important",
