@@ -116,18 +116,68 @@ if (-not (Test-Path $settingsDir)) {
 
 $settingsFile = Join-Path $settingsDir "settings.json"
 
-# Backup existing settings if they exist
+# Strip JSONC features (comments, trailing commas) so ConvertFrom-Json can parse
+function Strip-Jsonc {
+    param([string]$Text)
+    $Text = $Text -replace '//.*$', ''
+    $Text = $Text -replace '/\*[\s\S]*?\*/', ''
+    $Text = $Text -replace ',\s*([}\]])', '$1'
+    return $Text
+}
+
+$newSettingsRaw = Get-Content "$scriptDir\settings.json" -Raw
+$newSettings = (Strip-Jsonc $newSettingsRaw) | ConvertFrom-Json
+
+# If the user has existing settings, merge instead of overwrite. Existing keys
+# WIN on conflict so personal choices (fontFamily, lineHeight, etc.) are preserved.
+# Users who want the full Islands look can manually remove their conflicting keys.
 if (Test-Path $settingsFile) {
     $backupFile = "$settingsFile.pre-islands-dark"
     Copy-Item $settingsFile $backupFile -Force
     Write-Host "Existing settings.json backed up to:" -ForegroundColor Yellow
     Write-Host "   $backupFile"
     Write-Host "   You can restore your old settings from this file if needed."
-}
 
-# Copy Islands Dark settings
-Copy-Item "$scriptDir\settings.json" $settingsFile -Force
-Write-Host "Islands Dark settings applied" -ForegroundColor Green
+    try {
+        $existingRaw = Get-Content $settingsFile -Raw
+        $existingSettings = (Strip-Jsonc $existingRaw) | ConvertFrom-Json
+
+        # Start with Islands defaults, then layer existing user settings on top so
+        # the user's choices override Islands' choices on any conflicting key.
+        $mergedSettings = [ordered]@{}
+        $newSettings.PSObject.Properties | ForEach-Object {
+            $mergedSettings[$_.Name] = $_.Value
+        }
+        $existingSettings.PSObject.Properties | ForEach-Object {
+            $mergedSettings[$_.Name] = $_.Value
+        }
+
+        # Deep merge custom-ui-style.stylesheet so any per-user CSS tweaks survive
+        $stylesheetKey = 'custom-ui-style.stylesheet'
+        if ($existingSettings.$stylesheetKey -and $newSettings.$stylesheetKey) {
+            $mergedStylesheet = [ordered]@{}
+            $newSettings.$stylesheetKey.PSObject.Properties | ForEach-Object {
+                $mergedStylesheet[$_.Name] = $_.Value
+            }
+            $existingSettings.$stylesheetKey.PSObject.Properties | ForEach-Object {
+                $mergedStylesheet[$_.Name] = $_.Value
+            }
+            $mergedSettings[$stylesheetKey] = [PSCustomObject]$mergedStylesheet
+        }
+
+        [PSCustomObject]$mergedSettings | ConvertTo-Json -Depth 100 | Set-Content $settingsFile
+        Write-Host "Settings merged (your existing keys preserved)" -ForegroundColor Green
+        Write-Host "   Note: JSONC comments are stripped during merge - your backup retains them" -ForegroundColor DarkGray
+        Write-Host "   To apply Islands' font/spacing defaults, remove the matching keys from your settings.json" -ForegroundColor DarkGray
+    } catch {
+        Write-Host "Could not parse existing settings.json - leaving it untouched" -ForegroundColor Yellow
+        Write-Host "   To get the Islands Dark settings, manually copy from $scriptDir\settings.json"
+        Write-Host "   Error: $($_.Exception.Message)" -ForegroundColor DarkGray
+    }
+} else {
+    Copy-Item "$scriptDir\settings.json" $settingsFile -Force
+    Write-Host "Islands Dark settings applied" -ForegroundColor Green
+}
 
 Write-Host ""
 Write-Host "Step 5: Enabling Custom UI Style..."
