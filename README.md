@@ -53,6 +53,16 @@ curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/boo
 irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
 ```
 
+#### Antigravity (macOS)
+
+[Antigravity](https://antigravity.google) is Google's AI-powered IDE built as a fork of VS Code.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap-antigravity.sh | bash
+```
+
+> **Antigravity IDE vs Antigravity:** The installer detects both the newer **Antigravity IDE** (`~/.antigravity-ide`) and the older **Antigravity** (`~/.antigravity`). It also patches the Custom UI Style extension to work around a known bug where CSS customizations don't load due to `reactive-vscode` config refs returning empty objects outside Vue's effect scope.
+
 ### Manual Clone Install
 
 If you prefer to clone first:
@@ -71,6 +81,22 @@ cd islands-dark
 git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
 cd islands-dark
 .\install.ps1
+```
+
+#### Antigravity (macOS)
+
+```bash
+git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+./install-antigravity.sh
+```
+
+#### Antigravity (Windows)
+
+```powershell
+git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+.\install-antigravity.ps1
 ```
 
 The scripts will automatically:
