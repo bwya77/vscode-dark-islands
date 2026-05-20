@@ -61,6 +61,8 @@ irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.
 curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap-antigravity.sh | bash
 ```
 
+> **Antigravity IDE vs Antigravity:** The installer detects both the newer **Antigravity IDE** (`~/.antigravity-ide`) and the older **Antigravity** (`~/.antigravity`). It also patches the Custom UI Style extension to work around a known bug where CSS customizations don't load due to `reactive-vscode` config refs returning empty objects outside Vue's effect scope.
+
 ### Manual Clone Install
 
 If you prefer to clone first:
