@@ -5,57 +5,77 @@ param()
 
 $ErrorActionPreference = "Stop"
 
-echo "🏝️  Islands Dark Theme Bootstrap Installer"
+echo '🏝️  Islands Dark Theme Bootstrap Installer'
 echo "=========================================="
 echo ""
 
 $RepoUrl = "https://github.com/bwya77/vscode-dark-islands.git"
 $Branch = "main"
-$InstallDir = "$env:TEMP\islands-dark-temp"
+$TempRoot = if ([string]::IsNullOrWhiteSpace($env:TEMP)) { [System.IO.Path]::GetTempPath() } else { $env:TEMP }
+$InstallDir = Join-Path $TempRoot ("islands-dark-temp-{0}" -f ([guid]::NewGuid().ToString("N")))
 
-echo "📥 Step 1: Downloading Islands Dark..."
+echo '📥 Step 1: Downloading Islands Dark...'
 echo "   Repository: $RepoUrl"
 
 # Remove old temp directory if exists
-if (Test-Path $InstallDir) {
-    Remove-Item -Recurse -Force $InstallDir
+if (Test-Path -LiteralPath $InstallDir) {
+    Remove-Item -LiteralPath $InstallDir -Recurse -Force
 }
+New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 
 # Clone repository
 try {
     git clone $RepoUrl $InstallDir --quiet --branch $Branch
+    if ($LASTEXITCODE -ne 0) {
+        throw "git clone exited with code $LASTEXITCODE"
+    }
 } catch {
-    echo "❌ Failed to download Islands Dark"
+    echo '❌ Failed to download Islands Dark'
     echo "   Make sure Git is installed: https://git-scm.com/download/win"
-    exit 1
+    echo "   $($_.Exception.Message)"
+    return
 }
 
-echo "✓ Downloaded successfully"
+echo '✓ Downloaded successfully'
 echo ""
 
-echo "🚀 Step 2: Running installer..."
+echo '🚀 Step 2: Running installer...'
 echo ""
 
 # Run installer
-cd $InstallDir
+$InstallerPath = Join-Path $InstallDir "install.ps1"
+$PowerShellPath = (Get-Command "powershell.exe" -ErrorAction SilentlyContinue).Source
+if (-not $PowerShellPath) {
+    $PowerShellPath = (Get-Process -Id $PID).Path
+}
+
 try {
-    .\install.ps1
+    & $PowerShellPath -NoProfile -ExecutionPolicy Bypass -File $InstallerPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "Installer exited with code $LASTEXITCODE"
+    }
 } catch {
     echo "❌ Installation failed"
     echo $_.Exception.Message
-    exit 1
+    return
 }
 
 # Cleanup
 echo ""
-echo "🧹 Step 3: Cleaning up..."
+echo '🧹 Step 3: Cleaning up...'
 $remove = Read-Host "   Remove temporary files? (y/n)"
 if ($remove -eq 'y' -or $remove -eq 'Y') {
-    Remove-Item -Recurse -Force $InstallDir
-    echo "✓ Temporary files removed"
+    try {
+        Remove-Item -LiteralPath $InstallDir -Recurse -Force
+        echo '✓ Temporary files removed'
+    } catch {
+        echo "   Could not remove temporary files:"
+        echo "   $($_.Exception.Message)"
+        echo "   Files kept at: $InstallDir"
+    }
 } else {
     echo "   Files kept at: $InstallDir"
 }
 
 echo ""
-echo "🎉 Done! Enjoy your Islands Dark theme!"
+echo '🎉 Done! Enjoy your Islands Dark theme!'
