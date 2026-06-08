@@ -20,14 +20,19 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 SETTINGS_FILE="$SETTINGS_DIR/settings.json"
-BACKUP_FILE="$SETTINGS_FILE.pre-islands-dark"
 
-if [ -f "$BACKUP_FILE" ]; then
-    cp "$BACKUP_FILE" "$SETTINGS_FILE"
+# Look for timestamped backups first, then the legacy backup name
+LATEST_BACKUP=""
+if [ -d "$SETTINGS_DIR" ]; then
+    LATEST_BACKUP=$(ls -t "$SETTINGS_DIR"/settings.json.pre-islands-dark* 2>/dev/null | head -1)
+fi
+
+if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP" ]; then
+    cp "$LATEST_BACKUP" "$SETTINGS_FILE"
     echo -e "${GREEN}✓ Settings restored from backup${NC}"
-    echo "   Backup file: $BACKUP_FILE"
+    echo "   Backup file: $LATEST_BACKUP"
 else
-    echo -e "${YELLOW}⚠️  No backup found at $BACKUP_FILE${NC}"
+    echo -e "${YELLOW}⚠️  No backup found${NC}"
     echo "   You may need to manually update your VS Code settings."
 fi
 
@@ -50,35 +55,17 @@ else
     echo -e "${YELLOW}⚠️  Extension directory not found (may already be removed)${NC}"
 fi
 
-# Step 4: Remove extension from extensions.json
+# Step 4: Uninstall extension via VS Code CLI
 echo ""
-echo "📋 Step 4: Unregistering extension..."
-if command -v node &> /dev/null; then
-    node << 'UNREGISTER_SCRIPT'
-const fs = require('fs');
-const path = require('path');
-
-const extJsonPath = path.join(process.env.HOME, '.vscode', 'extensions', 'extensions.json');
-if (fs.existsSync(extJsonPath)) {
-    try {
-        let extensions = JSON.parse(fs.readFileSync(extJsonPath, 'utf8'));
-        const before = extensions.length;
-        extensions = extensions.filter(e =>
-            e.identifier?.id !== 'bwya77.islands-dark' &&
-            e.identifier?.id !== 'your-publisher-name.islands-dark'
-        );
-        if (extensions.length < before) {
-            fs.writeFileSync(extJsonPath, JSON.stringify(extensions));
-            console.log('Extension unregistered');
-        } else {
-            console.log('Extension was not registered');
-        }
-    } catch (e) {
-        console.log('Could not update extensions.json');
-    }
-}
-UNREGISTER_SCRIPT
-    echo -e "${GREEN}✓ Extension unregistered${NC}"
+echo "📋 Step 4: Uninstalling extension from VS Code..."
+if command -v code &> /dev/null; then
+    if code --uninstall-extension bwya77.islands-dark --force 2>/dev/null; then
+        echo -e "${GREEN}✓ Extension uninstalled via VS Code CLI${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Extension not installed (or already removed)${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  VS Code CLI not found - extension directory was already removed in Step 3${NC}"
 fi
 
 # Step 5: Change theme

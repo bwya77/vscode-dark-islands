@@ -46,14 +46,6 @@ else
     exit 1
 fi
 
-# Remove extensions.json so VS Code rebuilds it cleanly on next launch
-# (previous versions of this script wrote invalid content to this file)
-EXT_JSON="$HOME/.vscode/extensions/extensions.json"
-if [ -f "$EXT_JSON" ]; then
-    rm -f "$EXT_JSON"
-    echo -e "${GREEN}✓ Cleared extensions.json (VS Code will rebuild it)${NC}"
-fi
-
 echo ""
 echo "🔧 Step 2: Installing Custom UI Style extension..."
 if code --install-extension subframe7536.custom-ui-style --force; then
@@ -95,18 +87,37 @@ fi
 mkdir -p "$SETTINGS_DIR"
 SETTINGS_FILE="$SETTINGS_DIR/settings.json"
 
-# Backup existing settings if they exist
+# Backup existing settings if they exist, then merge
 if [ -f "$SETTINGS_FILE" ]; then
-    BACKUP_FILE="$SETTINGS_FILE.pre-islands-dark"
+    TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+    BACKUP_FILE="$SETTINGS_FILE.pre-islands-dark.$TIMESTAMP"
     cp "$SETTINGS_FILE" "$BACKUP_FILE"
     echo -e "${YELLOW}⚠️  Existing settings.json backed up to:${NC}"
     echo "   $BACKUP_FILE"
     echo "   You can restore your old settings from this file if needed."
-fi
 
-# Copy Islands Dark settings
-cp "$SCRIPT_DIR/settings.json" "$SETTINGS_FILE"
-echo -e "${GREEN}✓ Islands Dark settings applied${NC}"
+    if command -v jq &> /dev/null; then
+        # Merge: user's non-theme settings are preserved, Islands Dark theme keys win
+        # This ensures updated fixes are applied while keeping user customizations
+        if MERGED=$(jq -s '.[0] * .[1]' "$SETTINGS_FILE" "$SCRIPT_DIR/settings.json" 2>/dev/null); then
+            echo "$MERGED" > "$SETTINGS_FILE"
+            echo -e "${GREEN}✓ Settings merged (your non-theme settings preserved, theme settings updated)${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Could not parse existing settings.json - leaving it untouched${NC}"
+            echo "   Your backup is at: $BACKUP_FILE"
+            echo "   To apply Islands Dark settings, manually merge from: $SCRIPT_DIR/settings.json"
+        fi
+    else
+        echo -e "${YELLOW}⚠️  jq not found - cannot merge settings safely${NC}"
+        echo "   Your backup is at: $BACKUP_FILE"
+        echo "   To apply Islands Dark settings, manually merge from: $SCRIPT_DIR/settings.json"
+        echo "   Or install jq (https://jqlang.github.io/jq/) and re-run this script"
+    fi
+else
+    # No existing settings - just copy
+    cp "$SCRIPT_DIR/settings.json" "$SETTINGS_FILE"
+    echo -e "${GREEN}✓ Islands Dark settings applied${NC}"
+fi
 
 echo ""
 echo "🚀 Step 5: Enabling Custom UI Style..."

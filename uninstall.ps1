@@ -12,14 +12,21 @@ Write-Host ""
 Write-Host "Step 1: Restoring VS Code settings..."
 $settingsDir = "$env:APPDATA\Code\User"
 $settingsFile = Join-Path $settingsDir "settings.json"
-$backupFile = "$settingsFile.pre-islands-dark"
 
-if (Test-Path $backupFile) {
-    Copy-Item $backupFile $settingsFile -Force
+# Look for timestamped backups first, then the legacy backup name
+$backupDir = Split-Path $settingsFile
+$backups = @()
+if (Test-Path $backupDir) {
+    $backups = Get-ChildItem "$backupDir\settings.json.pre-islands-dark*" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending
+}
+
+if ($backups.Count -gt 0) {
+    $latestBackup = $backups[0].FullName
+    Copy-Item $latestBackup $settingsFile -Force
     Write-Host "Settings restored from backup" -ForegroundColor Green
-    Write-Host "   Backup file: $backupFile"
+    Write-Host "   Backup file: $latestBackup"
 } else {
-    Write-Host "No backup found at $backupFile" -ForegroundColor Yellow
+    Write-Host "No backup found" -ForegroundColor Yellow
     Write-Host "   You may need to manually update your VS Code settings."
 }
 
@@ -42,27 +49,35 @@ if (Test-Path $extDir) {
     Write-Host "Extension directory not found (may already be removed)" -ForegroundColor Yellow
 }
 
-# Step 4: Remove extension from extensions.json
+# Step 4: Uninstall extension via VS Code CLI
 Write-Host ""
-Write-Host "Step 4: Unregistering extension..."
-$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
-try {
-    if (Test-Path $extJsonPath) {
-        $extensions = Get-Content $extJsonPath -Raw | ConvertFrom-Json
-        $before = $extensions.Count
-        $extensions = @($extensions | Where-Object {
-            $_.identifier.id -ne 'bwya77.islands-dark' -and
-            $_.identifier.id -ne 'your-publisher-name.islands-dark'
-        })
-        if ($extensions.Count -lt $before) {
-            $extensions | ConvertTo-Json -Depth 10 -Compress | Set-Content $extJsonPath
-            Write-Host "Extension unregistered" -ForegroundColor Green
-        } else {
-            Write-Host "Extension was not registered" -ForegroundColor Yellow
+Write-Host "Step 4: Uninstalling extension from VS Code..."
+
+# Check if VS Code CLI is available
+$codePath = Get-Command "code" -ErrorAction SilentlyContinue
+if (-not $codePath) {
+    $possiblePaths = @(
+        "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
+        "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
+        "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd"
+    )
+    foreach ($path in $possiblePaths) {
+        if (Test-Path $path) {
+            $env:Path += ";$(Split-Path $path)"
+            break
         }
     }
+}
+
+try {
+    $null = code --uninstall-extension bwya77.islands-dark --force 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Extension uninstalled via VS Code CLI" -ForegroundColor Green
+    } else {
+        Write-Host "Extension not installed via marketplace (or already removed)" -ForegroundColor Yellow
+    }
 } catch {
-    Write-Host "Could not update extensions.json" -ForegroundColor Yellow
+    Write-Host "Could not uninstall extension via VS Code CLI" -ForegroundColor Yellow
 }
 
 # Step 5: Change theme

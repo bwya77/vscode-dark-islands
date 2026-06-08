@@ -62,13 +62,6 @@ if (Test-Path "$extDir\themes") {
     exit 1
 }
 
-# Remove extensions.json so VS Code rebuilds it cleanly on next launch
-# (previous versions of this script wrote invalid content to this file)
-$extJsonPath = "$env:USERPROFILE\.vscode\extensions\extensions.json"
-if (Test-Path $extJsonPath) {
-    Remove-Item $extJsonPath -Force
-    Write-Host "Cleared extensions.json (VS Code will rebuild it)" -ForegroundColor Green
-}
 
 Write-Host ""
 Write-Host "Step 2: Installing Custom UI Style extension..."
@@ -116,18 +109,78 @@ if (-not (Test-Path $settingsDir)) {
 
 $settingsFile = Join-Path $settingsDir "settings.json"
 
-# Backup existing settings if they exist
+# Strip JSONC features (comments, trailing commas) so ConvertFrom-Json can parse
+function Strip-Jsonc {
+    param([string]$Text)
+    # Remove single-line comments
+    $Text = $Text -replace '(?m)//.*$', ''
+    # Remove multi-line comments
+    $Text = $Text -replace '/\*[\s\S]*?\*/', ''
+    # Remove trailing commas before } or ]
+    $Text = $Text -replace ',\s*([}\]])', '$1'
+    return $Text
+}
+
+$newSettingsRaw = Get-Content "$scriptDir\settings.json" -Raw
+$newSettings = (Strip-Jsonc $newSettingsRaw) | ConvertFrom-Json
+
+# If the user has existing settings, merge instead of overwrite.
+# Islands Dark theme keys win so updated fixes are applied correctly.
+# Non-theme user settings are preserved.
 if (Test-Path $settingsFile) {
-    $backupFile = "$settingsFile.pre-islands-dark"
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    $backupFile = "$settingsFile.pre-islands-dark.$timestamp"
     Copy-Item $settingsFile $backupFile -Force
     Write-Host "Existing settings.json backed up to:" -ForegroundColor Yellow
     Write-Host "   $backupFile"
     Write-Host "   You can restore your old settings from this file if needed."
-}
 
-# Copy Islands Dark settings
-Copy-Item "$scriptDir\settings.json" $settingsFile -Force
-Write-Host "Islands Dark settings applied" -ForegroundColor Green
+    try {
+        $existingRaw = Get-Content $settingsFile -Raw
+        $existingSettings = (Strip-Jsonc $existingRaw) | ConvertFrom-Json
+
+        # Start with user's existing settings, then overlay Islands Dark theme settings.
+        # Theme keys win so fixes/updates are applied correctly.
+        $mergedSettings = [ordered]@{}
+
+        # First, copy all existing user settings
+        $existingSettings.PSObject.Properties | ForEach-Object {
+            $mergedSettings[$_.Name] = $_.Value
+        }
+
+        # Then overlay Islands Dark settings (theme keys win)
+        $newSettings.PSObject.Properties | ForEach-Object {
+            $mergedSettings[$_.Name] = $_.Value
+        }
+
+        # Deep merge custom-ui-style.stylesheet so user's extra CSS rules survive
+        # but Islands Dark's selectors always get the latest fixes
+        $stylesheetKey = 'custom-ui-style.stylesheet'
+        if ($existingSettings.$stylesheetKey -and $newSettings.$stylesheetKey) {
+            $mergedStylesheet = [ordered]@{}
+            # Start with user's custom CSS selectors
+            $existingSettings.$stylesheetKey.PSObject.Properties | ForEach-Object {
+                $mergedStylesheet[$_.Name] = $_.Value
+            }
+            # Overlay Islands Dark selectors (theme wins for its own selectors)
+            $newSettings.$stylesheetKey.PSObject.Properties | ForEach-Object {
+                $mergedStylesheet[$_.Name] = $_.Value
+            }
+            $mergedSettings[$stylesheetKey] = [PSCustomObject]$mergedStylesheet
+        }
+
+        [PSCustomObject]$mergedSettings | ConvertTo-Json -Depth 100 | Set-Content $settingsFile
+        Write-Host "Settings merged (your non-theme settings preserved, theme settings updated)" -ForegroundColor Green
+    } catch {
+        Write-Host "Could not parse existing settings.json - leaving it untouched" -ForegroundColor Yellow
+        Write-Host "   Your backup is at: $backupFile" -ForegroundColor DarkGray
+        Write-Host "   To apply Islands Dark settings, manually merge from: $scriptDir\settings.json" -ForegroundColor DarkGray
+        Write-Host "   Error: $($_.Exception.Message)" -ForegroundColor DarkGray
+    }
+} else {
+    Copy-Item "$scriptDir\settings.json" $settingsFile -Force
+    Write-Host "Islands Dark settings applied" -ForegroundColor Green
+}
 
 Write-Host ""
 Write-Host "Step 5: Enabling Custom UI Style..."

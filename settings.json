@@ -1,5 +1,5 @@
 {
-  "// Islands Dark Settings v0.0.2": "",
+  "// Islands Dark Settings v0.0.3": "",
   "workbench.colorTheme": "Islands Dark",
   "editor.fontFamily": "IBM Plex Mono",
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
@@ -55,7 +55,7 @@
       "outline-offset": "-1px !important"
    },
    ".explorer-viewlet .split-view-container": {
-      "margin-top": "-22px !important"
+      "margin-top": "0 !important"
    },
    ".part.sidebar .header": {
       "padding-right": "20px !important"
@@ -78,8 +78,8 @@
       "transition": "background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important"
    },
    ".part.sidebar .monaco-list-row.selected": {
-      "background": "transparent !important",
-      "box-shadow": "none !important",
+      "background": "linear-gradient(135deg, rgba(49,50,56,0.35), rgba(37,38,44,0.25)) !important",
+      "box-shadow": "inset 0 0 0 1px rgba(255,255,255,0.04) !important",
       "outline": "none !important"
    },
    ".part.sidebar .monaco-list-row.focused": {
@@ -115,6 +115,9 @@
       "border-bottom": "1px solid rgba(255,255,255,0.03) !important",
       "border-right": "1px solid rgba(255,255,255,0.03) !important",
       "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
+   },
+   ".part.editor > .modal-editor-header": {
+      "height": "60px !important"
    },
    ".editor-actions": {
       "padding-right": "20px !important",
@@ -247,10 +250,13 @@
       "z-index": "1 !important"
    },
    ".part.panel.bottom > .content": {
-      "margin-top": "-6px !important",
+      "margin-top": "0 !important",
       "position": "relative !important",
       "border-radius": "0 0 calc(var(--islands-panel-radius) - var(--islands-panel-gap)) calc(var(--islands-panel-radius) - var(--islands-panel-gap)) !important",
       "overflow": "hidden !important"
+   },
+   ".part.panel.bottom:has(.terminal-outer-container) > .content": {
+      "margin-top": "-7px !important"
    },
    ".part.panel.bottom .pane": {
       "border-bottom": "none !important"
@@ -467,10 +473,42 @@
       "width": "100% !important"
    },
    ".part.auxiliarybar .split-view-view": {
-      "max-height": "calc(100% - 24px) !important"
+      "max-height": "100% !important",
+      "overflow": "hidden !important",
+      "display": "flex !important",
+      "flex-direction": "column !important"
    },
    ".part.auxiliarybar .header": {
       "padding-left": "8px !important"
+   },
+   ".part.auxiliarybar .chat-input-part": {
+      "position": "sticky !important",
+      "bottom": "0 !important",
+      "z-index": "10 !important"
+   },
+   ".part.auxiliarybar .interactive-input-part": {
+      "border-radius": "var(--islands-widget-radius) !important",
+      "overflow": "visible !important",
+      "flex-shrink": "0 !important"
+   },
+   ".part.auxiliarybar .interactive-session": {
+      "display": "flex !important",
+      "flex-direction": "column !important",
+      "height": "100% !important",
+      "overflow": "hidden !important"
+   },
+   ".part.auxiliarybar .interactive-list": {
+      "flex": "1 1 auto !important",
+      "overflow-y": "auto !important",
+      "min-height": "0 !important"
+   },
+   ".part.auxiliarybar .chat-input-container": {
+      "flex-shrink": "0 !important",
+      "overflow": "visible !important",
+      "min-height": "fit-content !important"
+   },
+   ".part.auxiliarybar .monaco-inputbox": {
+      "overflow": "visible !important"
    },
    ".quick-input-widget": {
       "border-radius": "var(--islands-widget-radius) !important",
@@ -551,14 +589,22 @@
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
       "border-right": "1px solid rgba(255,255,255,0.02) !important",
-      "overflow": "hidden !important"
+      "overflow": "visible !important",
+      "display": "flex !important",
+      "flex-direction": "column !important",
+      "align-items": "stretch !important"
    },
    ".chat-input-container .monaco-inputbox": {
       "background-color": "var(--islands-bg-surface) !important"
    },
    ".interactive-input-part": {
       "border-radius": "var(--islands-widget-radius) !important",
-      "overflow": "hidden !important"
+      "overflow": "visible !important",
+      "display": "flex !important",
+      "flex-direction": "column !important"
+   },
+   ".interactive-input-part .monaco-editor": {
+      "overflow": "visible !important"
    },
 
    ".monaco-button-dropdown-separator": {
