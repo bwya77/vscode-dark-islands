@@ -82,6 +82,17 @@ if (-not (Test-Path $fontDir)) {
     New-Item -ItemType Directory -Path $fontDir -Force | Out-Null
 }
 
+# Track which fonts already existed (for clean uninstall)
+$fontPreExistence = @{}
+$fontFiles = Get-ChildItem "$scriptDir\fonts\*.otf" -ErrorAction SilentlyContinue
+foreach ($f in $fontFiles) {
+    $destPath = Join-Path $fontDir $f.Name
+    $fontPreExistence[$f.Name] = @{
+        wasPresentBeforeInstall = (Test-Path $destPath)
+        installedPath = $destPath
+    }
+}
+
 try {
     $fonts = Get-ChildItem "$scriptDir\fonts\*.otf"
     foreach ($font in $fonts) {
@@ -229,6 +240,55 @@ if (Test-Path $settingsFile) {
 } else {
     Copy-Item "$scriptDir\settings.json" $settingsFile -Force
     Write-Host "Islands Dark settings applied" -ForegroundColor Green
+}
+
+# Save pre-install state for clean uninstall (only on first install)
+$stateFile = Join-Path $settingsDir ".islands-dark-state.json"
+if (-not (Test-Path $stateFile)) {
+    $state = [ordered]@{
+        previousColorTheme = "Default Dark+"
+        previousIconTheme  = ""
+        customUiStyleWasInstalled = $false
+        settingsBackupPath = ""
+        fonts = @{}
+        installedAt = (Get-Date -Format "o")
+    }
+
+    # Read previous theme from the backup (pre-merge settings)
+    if ($backupFile -and (Test-Path $backupFile)) {
+        try {
+            $backupRaw = Get-Content $backupFile -Raw
+            try { $backupSettings = $backupRaw | ConvertFrom-Json }
+            catch { $backupSettings = (Strip-Jsonc $backupRaw) | ConvertFrom-Json }
+
+            if ($backupSettings.'workbench.colorTheme') {
+                $state.previousColorTheme = $backupSettings.'workbench.colorTheme'
+            }
+            if ($backupSettings.'workbench.iconTheme') {
+                $state.previousIconTheme = $backupSettings.'workbench.iconTheme'
+            }
+        } catch {}
+        $state.settingsBackupPath = $backupFile
+    }
+
+    # Check if Custom UI Style was already installed
+    $cuiExtDirs = Get-ChildItem "$env:USERPROFILE\.vscode\extensions\subframe7536.custom-ui-style-*" -Directory -ErrorAction SilentlyContinue
+    if ($cuiExtDirs) {
+        $state.customUiStyleWasInstalled = $true
+    }
+
+    # Track which fonts were installed (use pre-install check from Step 3)
+    $fontState = [ordered]@{}
+    foreach ($key in $fontPreExistence.Keys) {
+        $fontState[$key] = [ordered]@{
+            wasPresentBeforeInstall = $fontPreExistence[$key].wasPresentBeforeInstall
+            installedPath = $fontPreExistence[$key].installedPath
+        }
+    }
+    $state.fonts = [PSCustomObject]$fontState
+
+    [PSCustomObject]$state | ConvertTo-Json -Depth 10 | Set-Content $stateFile
+    Write-Host "Pre-install state saved for clean uninstall" -ForegroundColor DarkGray
 }
 
 Write-Host ""

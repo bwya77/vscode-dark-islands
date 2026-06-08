@@ -57,10 +57,22 @@ fi
 
 echo ""
 echo "🔤 Step 3: Installing Bear Sans UI fonts..."
+
+# Track font pre-existence before installing
+FONT_PRE_STATE=""
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
     FONT_DIR="$HOME/Library/Fonts"
     echo "   Installing fonts to: $FONT_DIR"
+    for f in "$SCRIPT_DIR/fonts/"*.otf; do
+        [ -f "$f" ] || continue
+        fname=$(basename "$f")
+        if [ -f "$FONT_DIR/$fname" ]; then
+            FONT_PRE_STATE="${FONT_PRE_STATE}\"${fname}\": {\"wasPresentBeforeInstall\": true, \"installedPath\": \"${FONT_DIR}/${fname}\"},"
+        else
+            FONT_PRE_STATE="${FONT_PRE_STATE}\"${fname}\": {\"wasPresentBeforeInstall\": false, \"installedPath\": \"${FONT_DIR}/${fname}\"},"
+        fi
+    done
     cp "$SCRIPT_DIR/fonts/"*.otf "$FONT_DIR/" 2>/dev/null || true
     echo -e "${GREEN}✓ Fonts installed to Font Book${NC}"
     echo "   Note: You may need to restart applications to use the new fonts"
@@ -69,6 +81,15 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     FONT_DIR="$HOME/.local/share/fonts"
     mkdir -p "$FONT_DIR"
     echo "   Installing fonts to: $FONT_DIR"
+    for f in "$SCRIPT_DIR/fonts/"*.otf; do
+        [ -f "$f" ] || continue
+        fname=$(basename "$f")
+        if [ -f "$FONT_DIR/$fname" ]; then
+            FONT_PRE_STATE="${FONT_PRE_STATE}\"${fname}\": {\"wasPresentBeforeInstall\": true, \"installedPath\": \"${FONT_DIR}/${fname}\"},"
+        else
+            FONT_PRE_STATE="${FONT_PRE_STATE}\"${fname}\": {\"wasPresentBeforeInstall\": false, \"installedPath\": \"${FONT_DIR}/${fname}\"},"
+        fi
+    done
     cp "$SCRIPT_DIR/fonts/"*.otf "$FONT_DIR/" 2>/dev/null || true
     fc-cache -f 2>/dev/null || true
     echo -e "${GREEN}✓ Fonts installed${NC}"
@@ -76,6 +97,8 @@ else
     echo -e "${YELLOW}⚠️  Could not detect OS type for automatic font installation${NC}"
     echo "   Please manually install the fonts from the 'fonts/' folder"
 fi
+# Remove trailing comma from font state
+FONT_PRE_STATE="${FONT_PRE_STATE%,}"
 
 echo ""
 echo "⚙️  Step 4: Applying VS Code settings..."
@@ -117,6 +140,40 @@ else
     # No existing settings - just copy
     cp "$SCRIPT_DIR/settings.json" "$SETTINGS_FILE"
     echo -e "${GREEN}✓ Islands Dark settings applied${NC}"
+fi
+
+# Save pre-install state for clean uninstall (only on first install)
+STATE_FILE="$SETTINGS_DIR/.islands-dark-state.json"
+if [ ! -f "$STATE_FILE" ]; then
+    PREV_THEME="Default Dark+"
+    PREV_ICON_THEME=""
+    CUI_WAS_INSTALLED="false"
+    BACKUP_PATH="${BACKUP_FILE:-}"
+
+    # Read previous theme from backup
+    if [ -n "$BACKUP_PATH" ] && [ -f "$BACKUP_PATH" ]; then
+        if command -v jq &> /dev/null; then
+            PREV_THEME=$(jq -r '."workbench.colorTheme" // "Default Dark+"' "$BACKUP_PATH" 2>/dev/null || echo "Default Dark+")
+            PREV_ICON_THEME=$(jq -r '."workbench.iconTheme" // ""' "$BACKUP_PATH" 2>/dev/null || echo "")
+        fi
+    fi
+
+    # Check if Custom UI Style was already installed
+    if ls "$HOME/.vscode/extensions/subframe7536.custom-ui-style-"* 1>/dev/null 2>&1; then
+        CUI_WAS_INSTALLED="true"
+    fi
+
+    cat > "$STATE_FILE" << STATEEOF
+{
+  "previousColorTheme": "$PREV_THEME",
+  "previousIconTheme": "$PREV_ICON_THEME",
+  "customUiStyleWasInstalled": $CUI_WAS_INSTALLED,
+  "settingsBackupPath": "$BACKUP_PATH",
+  "fonts": {${FONT_PRE_STATE}},
+  "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+STATEEOF
+    echo -e "${GREEN}✓ Pre-install state saved for clean uninstall${NC}"
 fi
 
 echo ""
