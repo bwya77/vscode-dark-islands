@@ -202,12 +202,14 @@
       "border-radius": "var(--islands-input-radius) !important"
    },
    ".search-widget .replace-input .monaco-findInput": {
-      "width": "228px !important",
-      "height": "26px !important"
+      "width": "100% !important",
+      "height": "26px !important",
+      "box-sizing": "border-box !important"
    },
    ".search-widget .search-container .monaco-findInput": {
-      "width": "228px !important",
-      "height": "26px !important"
+      "width": "100% !important",
+      "height": "26px !important",
+      "box-sizing": "border-box !important"
    },
    ".results.show-file-icons": {
       "margin-bottom": "22px !important"
