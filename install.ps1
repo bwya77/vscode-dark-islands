@@ -109,20 +109,64 @@ if (-not (Test-Path $settingsDir)) {
 
 $settingsFile = Join-Path $settingsDir "settings.json"
 
-# Strip JSONC features (comments, trailing commas) so ConvertFrom-Json can parse
+# Strip JSONC features (comments, trailing commas) so ConvertFrom-Json can parse.
+# Uses a character-by-character approach to avoid stripping // inside quoted strings.
 function Strip-Jsonc {
     param([string]$Text)
-    # Remove single-line comments
-    $Text = $Text -replace '(?m)//.*$', ''
-    # Remove multi-line comments
-    $Text = $Text -replace '/\*[\s\S]*?\*/', ''
+    $result = [System.Text.StringBuilder]::new($Text.Length)
+    $inString = $false
+    $escaped = $false
+    $i = 0
+    while ($i -lt $Text.Length) {
+        $c = $Text[$i]
+        if ($escaped) {
+            [void]$result.Append($c)
+            $escaped = $false
+            $i++
+            continue
+        }
+        if ($c -eq '\' -and $inString) {
+            [void]$result.Append($c)
+            $escaped = $true
+            $i++
+            continue
+        }
+        if ($c -eq '"') {
+            $inString = -not $inString
+            [void]$result.Append($c)
+            $i++
+            continue
+        }
+        if (-not $inString) {
+            # Single-line comment: skip to end of line
+            if ($c -eq '/' -and ($i + 1) -lt $Text.Length -and $Text[$i + 1] -eq '/') {
+                while ($i -lt $Text.Length -and $Text[$i] -ne "`n") { $i++ }
+                continue
+            }
+            # Multi-line comment: skip to closing */
+            if ($c -eq '/' -and ($i + 1) -lt $Text.Length -and $Text[$i + 1] -eq '*') {
+                $i += 2
+                while ($i -lt $Text.Length) {
+                    if ($Text[$i] -eq '*' -and ($i + 1) -lt $Text.Length -and $Text[$i + 1] -eq '/') {
+                        $i += 2
+                        break
+                    }
+                    $i++
+                }
+                continue
+            }
+        }
+        [void]$result.Append($c)
+        $i++
+    }
+    $resultStr = $result.ToString()
     # Remove trailing commas before } or ]
-    $Text = $Text -replace ',\s*([}\]])', '$1'
-    return $Text
+    $resultStr = $resultStr -replace ',\s*([}\]])', '$1'
+    return $resultStr
 }
 
-$newSettingsRaw = Get-Content "$scriptDir\settings.json" -Raw
-$newSettings = (Strip-Jsonc $newSettingsRaw) | ConvertFrom-Json
+# Our own settings.json is valid JSON - parse directly
+$newSettings = Get-Content "$scriptDir\settings.json" -Raw | ConvertFrom-Json
 
 # If the user has existing settings, merge instead of overwrite.
 # Islands Dark theme keys win so updated fixes are applied correctly.
@@ -137,7 +181,12 @@ if (Test-Path $settingsFile) {
 
     try {
         $existingRaw = Get-Content $settingsFile -Raw
-        $existingSettings = (Strip-Jsonc $existingRaw) | ConvertFrom-Json
+        # Try direct parse first; fall back to JSONC stripping for user files with comments
+        try {
+            $existingSettings = $existingRaw | ConvertFrom-Json
+        } catch {
+            $existingSettings = (Strip-Jsonc $existingRaw) | ConvertFrom-Json
+        }
 
         # Start with user's existing settings, then overlay Islands Dark theme settings.
         # Theme keys win so fixes/updates are applied correctly.
