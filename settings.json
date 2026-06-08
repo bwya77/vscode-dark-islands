@@ -243,7 +243,7 @@
       "overflow": "hidden !important",
       "box-sizing": "border-box !important",
       "background-color": "var(--islands-bg-surface) !important",
-      "border-top": "6px solid var(--islands-bg-canvas) !important",
+      "margin-top": "6px",
       "border-left": "var(--islands-panel-gap) solid var(--islands-bg-canvas) !important",
       "border-right": "var(--islands-panel-gap) solid var(--islands-bg-canvas) !important",
       "border-bottom": "none !important",
