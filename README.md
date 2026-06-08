@@ -78,7 +78,14 @@ The scripts will automatically:
 - ✅ Install the Custom UI Style extension
 - ✅ Install Bear Sans UI fonts
 - ✅ Back up your existing settings and apply Islands Dark settings
-- ✅ Enable Custom UI Style and reload VS Code
+- ✅ Reload VS Code
+
+> **Important:** After the script finishes and VS Code reloads, you need to activate the CSS styling once:
+> 1. Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux)
+> 2. Type **Custom UI Style: Reload** and press Enter
+> 3. VS Code will reload with the full theme applied
+>
+> You only need to do this once (or after VS Code updates).
 
 > **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you).
 
@@ -331,14 +338,15 @@ cd islands-dark
 ```
 
 The uninstall script will:
-- Restore your previous settings from the `settings.json.pre-islands-dark` backup
-- Remove the Islands Dark theme extension
-- Unregister the extension from VS Code
+- ✅ Restore your previous `settings.json` from the backup (or surgically remove Islands Dark keys if no backup exists)
+- ✅ Remove the Islands Dark theme extension
+- ✅ Restore your previous color theme and icon theme
+- ✅ Remove Custom UI Style's CSS patches from VS Code's workbench files
+- ✅ Uninstall Custom UI Style (only if it wasn't installed before Islands Dark)
+- ✅ Remove Bear Sans UI fonts (only if they weren't installed before Islands Dark)
+- ✅ Clean up state files and reload VS Code
 
-After running the script, you'll need to:
-1. Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run **Custom UI Style: Disable**
-2. Open **Command Palette** and search **Preferences: Color Theme** to select a new theme
-3. Reload VS Code
+Everything is fully automated — no manual steps required after the script runs.
 
 ## Credits
 
