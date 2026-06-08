@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify tag matches package.json version
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "Tag version: $TAG_VERSION"
+          echo "Package version: $PKG_VERSION"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Package VSIX
+        id: vsix
+        run: |
+          vsce package --no-dependencies --skip-license || {
+            echo "::warning::VSIX packaging failed. Creating release without .vsix file."
+            echo "vsix_created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          VSIX_FILE=$(ls *.vsix)
+          echo "vsix_file=$VSIX_FILE" >> "$GITHUB_OUTPUT"
+          echo "vsix_created=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create install bundle
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          BUNDLE_DIR="islands-dark-${VERSION}"
+          mkdir -p "$BUNDLE_DIR/themes" "$BUNDLE_DIR/fonts"
+
+          # Core files
+          cp package.json "$BUNDLE_DIR/"
+          cp settings.json "$BUNDLE_DIR/"
+          cp settings-cursor.json "$BUNDLE_DIR/" 2>/dev/null || true
+          cp -r themes/* "$BUNDLE_DIR/themes/"
+          cp -r fonts/*.otf "$BUNDLE_DIR/fonts/" 2>/dev/null || true
+          cp README.md "$BUNDLE_DIR/"
+
+          # Install/uninstall scripts
+          cp install.sh uninstall.sh bootstrap.sh "$BUNDLE_DIR/" 2>/dev/null || true
+          cp install.ps1 uninstall.ps1 bootstrap.ps1 "$BUNDLE_DIR/" 2>/dev/null || true
+          cp install-cursor.sh uninstall-cursor.sh bootstrap-cursor.sh "$BUNDLE_DIR/" 2>/dev/null || true
+
+          # Make scripts executable
+          chmod +x "$BUNDLE_DIR"/*.sh 2>/dev/null || true
+
+          zip -r "islands-dark-${VERSION}.zip" "$BUNDLE_DIR"
+          echo "bundle_file=islands-dark-${VERSION}.zip" >> "$GITHUB_ENV"
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          cat > release-notes.md << 'EOF'
+          ## Islands Dark v${VERSION}
+
+          ### Installation
+
+          **One-liner (recommended):**
+
+          macOS/Linux:
+          ```bash
+          curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.sh | bash
+          ```
+
+          Windows (PowerShell):
+          ```powershell
+          irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
+          ```
+
+          **From this release:**
+          1. Download `islands-dark-${VERSION}.zip`
+          2. Extract and run `install.sh` (macOS/Linux) or `install.ps1` (Windows)
+
+          See the [README](https://github.com/bwya77/vscode-dark-islands#installation) for full instructions.
+          EOF
+
+          # Replace ${VERSION} in the template
+          sed -i "s/\${VERSION}/$VERSION/g" release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          files: |
+            ${{ steps.vsix.outputs.vsix_created == 'true' && steps.vsix.outputs.vsix_file || '' }}
+            ${{ env.bundle_file }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
