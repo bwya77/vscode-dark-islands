@@ -1,5 +1,5 @@
 {
-  "// Islands Dark Settings v0.0.3": "",
+  "// Islands Dark Settings v0.0.2 — Cursor variant": "",
   "workbench.colorTheme": "Islands Dark",
   "editor.fontFamily": "IBM Plex Mono",
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
@@ -7,6 +7,8 @@
   "workbench.tree.indent": 16,
   "workbench.tree.renderIndentGuides": "always",
   "editor.minimap.showSlider": "always",
+  "// Cursor-specific: disable webview style patching to avoid CSP errors in extension detail panels": "",
+  "custom-ui-style.webview.enable": false,
   "custom-ui-style.stylesheet": {
    ".monaco-workbench": {
       "--islands-panel-radius": "24px",
@@ -55,7 +57,7 @@
       "outline-offset": "-1px !important"
    },
    ".explorer-viewlet .split-view-container": {
-      "margin-top": "0 !important"
+      "margin-top": "-22px !important"
    },
    ".part.sidebar .header": {
       "padding-right": "20px !important"
@@ -78,8 +80,8 @@
       "transition": "background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important"
    },
    ".part.sidebar .monaco-list-row.selected": {
-      "background": "linear-gradient(135deg, rgba(49,50,56,0.35), rgba(37,38,44,0.25)) !important",
-      "box-shadow": "inset 0 0 0 1px rgba(255,255,255,0.04) !important",
+      "background": "transparent !important",
+      "box-shadow": "none !important",
       "outline": "none !important"
    },
    ".part.sidebar .monaco-list-row.focused": {
@@ -114,14 +116,7 @@
       "border-left": "1px solid rgba(255,255,255,0.08) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.03) !important",
       "border-right": "1px solid rgba(255,255,255,0.03) !important",
-      "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important",
-      "isolation": "isolate",
-      "transform": "translateZ(0)",
-      "will-change": "transform",
-      "contain": "paint"
-   },
-   ".part.editor > .modal-editor-header": {
-      "height": "60px !important"
+      "box-shadow": "0 2px 8px 0 rgba(0,0,0,0.3) !important"
    },
    ".editor-actions": {
       "padding-right": "20px !important",
@@ -247,25 +242,17 @@
       "border-left": "var(--islands-panel-gap) solid var(--islands-bg-canvas) !important",
       "border-right": "var(--islands-panel-gap) solid var(--islands-bg-canvas) !important",
       "border-bottom": "none !important",
-      "box-shadow": "inset 0 1px 0 0 rgba(255,255,255,0.1), inset 1px 0 0 0 rgba(255,255,255,0.06), inset -1px 0 0 0 rgba(255,255,255,0.02) !important",
-      "isolation": "isolate",
-      "transform": "translateZ(0)",
-      "will-change": "transform",
-      "contain": "paint"
+      "box-shadow": "inset 0 1px 0 0 rgba(255,255,255,0.1), inset 1px 0 0 0 rgba(255,255,255,0.06), inset -1px 0 0 0 rgba(255,255,255,0.02) !important"
    },
    ".part.panel.bottom > .composite.title": {
       "position": "relative !important",
       "z-index": "1 !important"
    },
    ".part.panel.bottom > .content": {
-      "margin-top": "0 !important",
+      "margin-top": "-6px !important",
       "position": "relative !important",
       "border-radius": "0 0 calc(var(--islands-panel-radius) - var(--islands-panel-gap)) calc(var(--islands-panel-radius) - var(--islands-panel-gap)) !important",
-      "overflow": "hidden !important",
-      "contain": "paint"
-   },
-   ".part.panel.bottom:has(.terminal-outer-container) > .content": {
-      "margin-top": "-7px !important"
+      "overflow": "hidden !important"
    },
    ".part.panel.bottom .pane": {
       "border-bottom": "none !important"
@@ -289,16 +276,10 @@
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-radius": "0 0 0 18px !important",
       "box-sizing": "border-box !important",
-      "overflow": "hidden !important",
-      "isolation": "isolate",
-      "transform": "translateZ(0)",
-      "will-change": "transform",
-      "contain": "paint"
+      "overflow": "hidden !important"
    },
    ".part.panel.bottom .terminal.xterm": {
-      "border-radius": "0 0 0 18px !important",
-      "transform": "translateZ(0)",
-      "will-change": "transform"
+      "border-radius": "0 0 0 18px !important"
    },
    ".part.panel.bottom .message-box-container": {
       "border-radius": "10px !important",
@@ -488,42 +469,10 @@
       "width": "100% !important"
    },
    ".part.auxiliarybar .split-view-view": {
-      "max-height": "100% !important",
-      "overflow": "hidden !important",
-      "display": "flex !important",
-      "flex-direction": "column !important"
+      "max-height": "calc(100% - 24px) !important"
    },
    ".part.auxiliarybar .header": {
       "padding-left": "8px !important"
-   },
-   ".part.auxiliarybar .chat-input-part": {
-      "position": "sticky !important",
-      "bottom": "0 !important",
-      "z-index": "10 !important"
-   },
-   ".part.auxiliarybar .interactive-input-part": {
-      "border-radius": "var(--islands-widget-radius) !important",
-      "overflow": "visible !important",
-      "flex-shrink": "0 !important"
-   },
-   ".part.auxiliarybar .interactive-session": {
-      "display": "flex !important",
-      "flex-direction": "column !important",
-      "height": "100% !important",
-      "overflow": "hidden !important"
-   },
-   ".part.auxiliarybar .interactive-list": {
-      "flex": "1 1 auto !important",
-      "overflow-y": "auto !important",
-      "min-height": "0 !important"
-   },
-   ".part.auxiliarybar .chat-input-container": {
-      "flex-shrink": "0 !important",
-      "overflow": "visible !important",
-      "min-height": "fit-content !important"
-   },
-   ".part.auxiliarybar .monaco-inputbox": {
-      "overflow": "visible !important"
    },
    ".quick-input-widget": {
       "border-radius": "var(--islands-widget-radius) !important",
@@ -587,11 +536,7 @@
    },
    ".notebookOverlay": {
       "border-radius": "0 0 var(--islands-panel-radius) var(--islands-panel-radius) !important",
-      "clip-path": "inset(0 18px var(--islands-panel-gap) var(--islands-panel-gap) round 0 0 var(--islands-panel-radius) var(--islands-panel-radius)) !important",
-      "isolation": "isolate",
-      "transform": "translateZ(0)",
-      "will-change": "transform",
-      "contain": "paint"
+      "clip-path": "inset(0 18px var(--islands-panel-gap) var(--islands-panel-gap) round 0 0 var(--islands-panel-radius) var(--islands-panel-radius)) !important"
    },
    ".chat-editing-session-container": {
       "border-radius": "var(--islands-input-radius) !important",
@@ -608,22 +553,14 @@
       "border-left": "1px solid rgba(255,255,255,0.06) !important",
       "border-bottom": "1px solid rgba(255,255,255,0.02) !important",
       "border-right": "1px solid rgba(255,255,255,0.02) !important",
-      "overflow": "visible !important",
-      "display": "flex !important",
-      "flex-direction": "column !important",
-      "align-items": "stretch !important"
+      "overflow": "hidden !important"
    },
    ".chat-input-container .monaco-inputbox": {
       "background-color": "var(--islands-bg-surface) !important"
    },
    ".interactive-input-part": {
       "border-radius": "var(--islands-widget-radius) !important",
-      "overflow": "visible !important",
-      "display": "flex !important",
-      "flex-direction": "column !important"
-   },
-   ".interactive-input-part .monaco-editor": {
-      "overflow": "visible !important"
+      "overflow": "hidden !important"
    },
 
    ".monaco-button-dropdown-separator": {
@@ -632,6 +569,14 @@
       "background-color": "transparent !important",
       "width": "0 !important",
       "opacity": "0 !important"
+   },
+
+   "// ─── Cursor-specific overrides ───": "",
+   ".titlebar-left .action-item:has(.codicon-panel-left)": {
+      "display": "none !important"
+   },
+   ".titlebar-left .action-item:has(.codicon-panel-left-off)": {
+      "display": "none !important"
    },
 
    "// ─── end ───": ""
