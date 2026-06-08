@@ -132,6 +132,44 @@ else
     fi
 fi
 
+# Step 3b: Restore VS Code workbench files patched by Custom UI Style
+echo ""
+echo "🔧 Step 3b: Removing Custom UI Style CSS patches..."
+
+CUI_RESTORED=0
+# Find VS Code installation directory
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    VSCODE_DIRS=("/Applications/Visual Studio Code.app/Contents/Resources/app/out")
+else
+    VSCODE_DIRS=(
+        "/usr/share/code/resources/app/out"
+        "/usr/lib/code/resources/app/out"
+        "/opt/visual-studio-code/resources/app/out"
+        "/snap/code/current/usr/share/code/resources/app/out"
+    )
+fi
+
+for vscode_base in "${VSCODE_DIRS[@]}"; do
+    [ -d "$vscode_base" ] || continue
+
+    # Custom UI Style saves originals as *.custom-ui-style.{ext}
+    while IFS= read -r backup; do
+        [ -f "$backup" ] || continue
+        # Derive original: workbench.custom-ui-style.html -> workbench.html
+        original=$(echo "$backup" | sed 's/\.custom-ui-style\././')
+        if [ -f "$original" ]; then
+            cp "$backup" "$original" 2>/dev/null && rm -f "$backup" 2>/dev/null && CUI_RESTORED=$((CUI_RESTORED + 1)) || true
+        fi
+    done < <(find "$vscode_base" -name "*.custom-ui-style.*" -type f 2>/dev/null)
+    break
+done
+
+if [ "$CUI_RESTORED" -gt 0 ]; then
+    echo -e "${GREEN}✓ $CUI_RESTORED VS Code file(s) restored to original state${NC}"
+else
+    echo "   No Custom UI Style patches found (already clean)"
+fi
+
 # Step 4: Remove fonts that we installed
 echo ""
 echo "🔤 Step 4: Removing installed fonts..."

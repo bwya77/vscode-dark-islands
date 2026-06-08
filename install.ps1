@@ -322,9 +322,17 @@ Write-Host "   Relaunching VS Code..." -ForegroundColor Cyan
 Start-Process "code" -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "Done!" -ForegroundColor Green
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host " IMPORTANT: One more step required!" -ForegroundColor Cyan
+Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "If the CSS customizations are not applied, open the Command Palette" -ForegroundColor Yellow
-Write-Host "(Ctrl+Shift+P) and run: Custom UI Style: Reload" -ForegroundColor Yellow
+Write-Host "To activate the custom UI styling:" -ForegroundColor Yellow
+Write-Host "   1. Wait for VS Code to finish loading"
+Write-Host "   2. Press Ctrl+Shift+P to open the Command Palette"
+Write-Host "   3. Type: Custom UI Style: Reload" -ForegroundColor White
+Write-Host "   4. Press Enter and VS Code will reload with the new styling"
+Write-Host ""
+Write-Host "You only need to do this once (or after VS Code updates)." -ForegroundColor DarkGray
+Write-Host ""
 
 Start-Sleep -Seconds 3

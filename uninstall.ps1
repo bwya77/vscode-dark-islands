@@ -166,6 +166,48 @@ if ($state -and $state.customUiStyleWasInstalled -eq $true) {
     }
 }
 
+# Step 3b: Restore VS Code workbench files patched by Custom UI Style
+Write-Host ""
+Write-Host "Step 3b: Removing Custom UI Style CSS patches..."
+
+$cuiRestoredCount = 0
+# Find VS Code installation directory
+$vscodeDirs = @(
+    "$env:LOCALAPPDATA\Programs\Microsoft VS Code",
+    "$env:ProgramFiles\Microsoft VS Code",
+    "${env:ProgramFiles(x86)}\Microsoft VS Code"
+)
+
+foreach ($vscodeBase in $vscodeDirs) {
+    if (-not (Test-Path $vscodeBase)) { continue }
+
+    # Custom UI Style saves originals as *.custom-ui-style.{ext}
+    # Find all backup files and restore them
+    $backupFiles = Get-ChildItem $vscodeBase -Recurse -Filter "*.custom-ui-style.*" -ErrorAction SilentlyContinue
+    foreach ($backup in $backupFiles) {
+        # Derive the original filename: workbench.custom-ui-style.html -> workbench.html
+        # workbench.desktop.main.custom-ui-style.css -> workbench.desktop.main.css
+        $originalName = $backup.Name -replace '\.custom-ui-style\.', '.'
+        $originalPath = Join-Path $backup.DirectoryName $originalName
+        if (Test-Path $originalPath) {
+            try {
+                Copy-Item $backup.FullName $originalPath -Force
+                Remove-Item $backup.FullName -Force
+                $cuiRestoredCount++
+            } catch {
+                Write-Host "   Could not restore: $originalName" -ForegroundColor Yellow
+            }
+        }
+    }
+    break
+}
+
+if ($cuiRestoredCount -gt 0) {
+    Write-Host "$cuiRestoredCount VS Code file(s) restored to original state" -ForegroundColor Green
+} else {
+    Write-Host "No Custom UI Style patches found (already clean)" -ForegroundColor DarkGray
+}
+
 # Step 4: Remove fonts that we installed
 Write-Host ""
 Write-Host "Step 4: Removing installed fonts..."
