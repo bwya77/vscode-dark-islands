@@ -8,7 +8,7 @@
 </a>
 
 
-A dark color theme for Visual Studio Code inspired by the easemate IDE. Features floating glass-like panels, rounded corners, smooth animations, and a deeply refined UI.
+A dark color theme for VS Code-compatible editors, including VSCodium, inspired by the easemate IDE. Features floating glass-like panels, rounded corners, smooth animations, and a deeply refined UI.
 
 - [easemate](https://x.com/easemate)
 - [easemate Nav](https://x.com/Jakubantalik/status/1952672176450215944)
@@ -41,23 +41,35 @@ This theme has two parts: a **color theme** and **CSS customizations** that crea
 
 The fastest way to install:
 
-#### macOS/Linux
+#### macOS/Linux (VS Code)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.sh | bash
 ```
 
-#### Windows
+#### Windows (VS Code)
 
 ```powershell
 irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
+```
+
+#### macOS/Linux (VSCodium)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.sh | bash -s -- --vscodium
+```
+
+#### Windows (VSCodium)
+
+```powershell
+$env:ISLANDS_DARK_EDITOR = "vscodium"; irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
 ```
 
 ### Manual Clone Install
 
 If you prefer to clone first:
 
-#### macOS/Linux
+#### macOS/Linux (VS Code)
 
 ```bash
 git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
@@ -65,7 +77,7 @@ cd islands-dark
 ./install.sh
 ```
 
-#### Windows
+#### Windows (VS Code)
 
 ```powershell
 git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
@@ -73,19 +85,35 @@ cd islands-dark
 .\install.ps1
 ```
 
+#### macOS/Linux (VSCodium)
+
+```bash
+git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+./install.sh --vscodium
+```
+
+#### Windows (VSCodium)
+
+```powershell
+git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+.\install.ps1 -Editor vscodium
+```
+
 The scripts will automatically:
 - ✅ Install the Islands Dark theme extension
 - ✅ Install the Custom UI Style extension
 - ✅ Install Bear Sans UI fonts
 - ✅ Back up your existing settings and apply Islands Dark settings
-- ✅ Reload VS Code
+- ✅ Reload VS Code or VSCodium
 
-> **Important:** After the script finishes and VS Code reloads, you need to activate the CSS styling once:
+> **Important:** After the script finishes and your editor reloads, you need to activate the CSS styling once:
 > 1. Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux)
 > 2. Type **Custom UI Style: Reload** and press Enter
-> 3. VS Code will reload with the full theme applied
+> 3. VS Code or VSCodium will reload with the full theme applied
 >
-> You only need to do this once (or after VS Code updates).
+> You only need to do this once (or after editor updates).
 
 > **Note:** IBM Plex Mono and FiraCode Nerd Font Mono must be installed separately (the script will remind you).
 
@@ -118,6 +146,15 @@ To use it in your NixOS or Home Manager configuration, add it to your flake inpu
 ```
 
 > **Note:** The Nix flake automatically includes the **Custom UI Style** extension, **Seti Folder** icon theme, and all required fonts (**Bear Sans UI**, **IBM Plex Mono**, and **FiraCode Nerd Font**). It will also copy the recommended `settings.json` on the first run.
+
+### VSCodium
+
+The standard installers support VSCodium via `--vscodium` on macOS/Linux and `-Editor vscodium` on Windows. They target VSCodium-specific paths and use the `codium` CLI:
+
+- Extensions: `~/.vscode-oss/extensions/` on macOS/Linux and `%USERPROFILE%\.vscode-oss\extensions\` on Windows
+- Settings: `~/Library/Application Support/VSCodium/User/` on macOS, `~/.config/VSCodium/User/` on Linux, and `%APPDATA%\VSCodium\User\` on Windows
+
+Use `./install.sh --vscodium` or `.\install.ps1 -Editor vscodium` for local installs, and `./uninstall.sh --vscodium` or `.\uninstall.ps1 -Editor vscodium` to remove it.
 
 ### Cursor (VS Code fork)
 
@@ -166,6 +203,8 @@ cp package.json ~/.vscode/extensions/bwya77.islands-dark-1.0.0/
 cp -r themes ~/.vscode/extensions/bwya77.islands-dark-1.0.0/
 ```
 
+For VSCodium, use `~/.vscode-oss/extensions/bwya77.islands-dark-1.0.0` instead of `~/.vscode/extensions/bwya77.islands-dark-1.0.0`.
+
 On Windows (PowerShell):
 ```powershell
 git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
@@ -175,6 +214,8 @@ New-Item -ItemType Directory -Path $ext -Force
 Copy-Item package.json $ext\
 Copy-Item themes $ext\themes -Recurse
 ```
+
+For VSCodium on Windows, use `$env:USERPROFILE\.vscode-oss\extensions\bwya77.islands-dark-1.0.0`.
 
 #### Step 2: Install the Custom UI Style extension
 
@@ -308,7 +349,7 @@ If you previously used the **Custom CSS and JS Loader** extension (`be5invis.vsc
 
 ## Uninstalling
 
-Run the uninstall script to restore your VS Code to its previous state:
+Run the uninstall script to restore your editor to its previous state:
 
 **macOS/Linux:**
 ```bash
@@ -330,6 +371,26 @@ cd islands-dark
 irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.ps1 | iex
 ```
 
+**VSCodium macOS/Linux:**
+```bash
+# If you still have the repo cloned:
+cd islands-dark
+./uninstall.sh --vscodium
+
+# Or download and run directly:
+curl -fsSL https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.sh | bash -s -- --vscodium
+```
+
+**VSCodium Windows (PowerShell):**
+```powershell
+# If you still have the repo cloned:
+cd islands-dark
+.\uninstall.ps1 -Editor vscodium
+
+# Or download and run directly:
+$env:ISLANDS_DARK_EDITOR = "vscodium"; irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/uninstall.ps1 | iex
+```
+
 **Cursor (macOS/Linux):**
 ```bash
 # If you still have the repo cloned:
@@ -341,10 +402,10 @@ The uninstall script will:
 - ✅ Restore your previous `settings.json` from the backup (or surgically remove Islands Dark keys if no backup exists)
 - ✅ Remove the Islands Dark theme extension
 - ✅ Restore your previous color theme and icon theme
-- ✅ Remove Custom UI Style's CSS patches from VS Code's workbench files
+- ✅ Remove Custom UI Style's CSS patches from VS Code or VSCodium workbench files
 - ✅ Uninstall Custom UI Style (only if it wasn't installed before Islands Dark)
 - ✅ Remove Bear Sans UI fonts (only if they weren't installed before Islands Dark)
-- ✅ Clean up state files and reload VS Code
+- ✅ Clean up state files and reload VS Code or VSCodium
 
 Everything is fully automated — no manual steps required after the script runs.
 

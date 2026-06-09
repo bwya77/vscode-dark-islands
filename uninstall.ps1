@@ -1,6 +1,9 @@
 # Islands Dark Theme Uninstaller for Windows
 
-param()
+param(
+    [ValidateSet("auto", "vscode", "vscodium")]
+    [string]$Editor = "auto"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -8,14 +11,64 @@ Write-Host "Islands Dark Theme Uninstaller for Windows" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Locate VS Code CLI
-$codePath = Get-Command "code" -ErrorAction SilentlyContinue
-if (-not $codePath) {
+# Pick editor target
+if ($env:ISLANDS_DARK_EDITOR -and $Editor -eq "auto") {
+    $Editor = $env:ISLANDS_DARK_EDITOR
+}
+$Editor = $Editor.ToLowerInvariant()
+if ($Editor -eq "codium") {
+    $Editor = "vscodium"
+} elseif ($Editor -eq "code") {
+    $Editor = "vscode"
+}
+
+if ($Editor -eq "auto") {
+    if (Get-Command "code" -ErrorAction SilentlyContinue) {
+        $Editor = "vscode"
+    } elseif (Get-Command "codium" -ErrorAction SilentlyContinue) {
+        $Editor = "vscodium"
+    } else {
+        $Editor = "vscode"
+    }
+}
+
+if ($Editor -eq "vscodium") {
+    $editorName = "VSCodium"
+    $cliName = "codium"
+    $extRoot = "$env:USERPROFILE\.vscode-oss\extensions"
+    $settingsDir = "$env:APPDATA\VSCodium\User"
+    $processName = "VSCodium"
+    $editorDirs = @(
+        "$env:LOCALAPPDATA\Programs\VSCodium",
+        "$env:ProgramFiles\VSCodium",
+        "${env:ProgramFiles(x86)}\VSCodium"
+    )
+    $possiblePaths = @(
+        "$env:LOCALAPPDATA\Programs\VSCodium\bin\codium.cmd",
+        "$env:ProgramFiles\VSCodium\bin\codium.cmd",
+        "${env:ProgramFiles(x86)}\VSCodium\bin\codium.cmd"
+    )
+} else {
+    $editorName = "VS Code"
+    $cliName = "code"
+    $extRoot = "$env:USERPROFILE\.vscode\extensions"
+    $settingsDir = "$env:APPDATA\Code\User"
+    $processName = "Code"
+    $editorDirs = @(
+        "$env:LOCALAPPDATA\Programs\Microsoft VS Code",
+        "$env:ProgramFiles\Microsoft VS Code",
+        "${env:ProgramFiles(x86)}\Microsoft VS Code"
+    )
     $possiblePaths = @(
         "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
         "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
         "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd"
     )
+}
+
+# Locate editor CLI
+$codePath = Get-Command $cliName -ErrorAction SilentlyContinue
+if (-not $codePath) {
     foreach ($path in $possiblePaths) {
         if (Test-Path $path) {
             $env:Path += ";$(Split-Path $path)"
@@ -26,14 +79,13 @@ if (-not $codePath) {
 }
 
 if ($codePath) {
-    Write-Host "VS Code CLI found" -ForegroundColor Green
+    Write-Host "$editorName CLI found" -ForegroundColor Green
 } else {
-    Write-Host "VS Code CLI not found - will skip CLI operations" -ForegroundColor Yellow
+    Write-Host "$editorName CLI not found - will skip CLI operations" -ForegroundColor Yellow
 }
 Write-Host ""
 
 # Load pre-install state if available
-$settingsDir = "$env:APPDATA\Code\User"
 $settingsFile = Join-Path $settingsDir "settings.json"
 $stateFile = Join-Path $settingsDir ".islands-dark-state.json"
 $state = $null
@@ -47,8 +99,8 @@ if (Test-Path $stateFile) {
     }
 }
 
-# Step 1: Restore VS Code settings
-Write-Host "Step 1: Restoring VS Code settings..."
+# Step 1: Restore editor settings
+Write-Host "Step 1: Restoring $editorName settings..."
 
 $restored = $false
 
@@ -105,7 +157,7 @@ if (-not $restored -and (Test-Path $settingsFile)) {
                     $cleaned['workbench.iconTheme'] = $state.previousIconTheme
                 }
             } else {
-                # Reset to VS Code defaults
+                # Reset to editor defaults
                 $cleaned['workbench.colorTheme'] = 'Default Dark+'
                 $cleaned.Remove('workbench.iconTheme')
             }
@@ -123,7 +175,7 @@ if (-not $restored -and (Test-Path $settingsFile)) {
 # Step 2: Remove Islands Dark theme extension
 Write-Host ""
 Write-Host "Step 2: Removing Islands Dark theme extension..."
-$extDir = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
+$extDir = Join-Path $extRoot "bwya77.islands-dark-1.0.0"
 if (Test-Path $extDir) {
     Remove-Item -Recurse -Force $extDir
     Write-Host "Theme extension directory removed" -ForegroundColor Green
@@ -133,9 +185,9 @@ if (Test-Path $extDir) {
 
 if ($codePath) {
     try {
-        $null = code --uninstall-extension bwya77.islands-dark --force 2>$null
+        $null = & $cliName --uninstall-extension bwya77.islands-dark --force 2>$null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "Extension uninstalled via VS Code CLI" -ForegroundColor Green
+            Write-Host "Extension uninstalled via $editorName CLI" -ForegroundColor Green
         }
     } catch {}
 }
@@ -152,7 +204,7 @@ if ($state -and $state.customUiStyleWasInstalled -eq $true) {
     # We installed it, so uninstall it
     if ($codePath) {
         try {
-            $null = code --uninstall-extension subframe7536.custom-ui-style --force 2>$null
+            $null = & $cliName --uninstall-extension subframe7536.custom-ui-style --force 2>$null
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "Custom UI Style extension uninstalled" -ForegroundColor Green
             } else {
@@ -162,23 +214,16 @@ if ($state -and $state.customUiStyleWasInstalled -eq $true) {
             Write-Host "Could not uninstall Custom UI Style automatically" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "Please uninstall Custom UI Style manually from VS Code Extensions" -ForegroundColor Yellow
+        Write-Host "Please uninstall Custom UI Style manually from $editorName Extensions" -ForegroundColor Yellow
     }
 }
 
-# Step 3b: Restore VS Code workbench files patched by Custom UI Style
+# Step 3b: Restore editor workbench files patched by Custom UI Style
 Write-Host ""
 Write-Host "Step 3b: Removing Custom UI Style CSS patches..."
 
 $cuiRestoredCount = 0
-# Find VS Code installation directory
-$vscodeDirs = @(
-    "$env:LOCALAPPDATA\Programs\Microsoft VS Code",
-    "$env:ProgramFiles\Microsoft VS Code",
-    "${env:ProgramFiles(x86)}\Microsoft VS Code"
-)
-
-foreach ($vscodeBase in $vscodeDirs) {
+foreach ($vscodeBase in $editorDirs) {
     if (-not (Test-Path $vscodeBase)) { continue }
 
     # Custom UI Style saves originals as *.custom-ui-style.{ext}
@@ -203,7 +248,7 @@ foreach ($vscodeBase in $vscodeDirs) {
 }
 
 if ($cuiRestoredCount -gt 0) {
-    Write-Host "$cuiRestoredCount VS Code file(s) restored to original state" -ForegroundColor Green
+    Write-Host "$cuiRestoredCount $editorName file(s) restored to original state" -ForegroundColor Green
 } else {
     Write-Host "No Custom UI Style patches found (already clean)" -ForegroundColor DarkGray
 }
@@ -249,18 +294,18 @@ if (Test-Path $settingsDir) {
     }
 }
 
-# Step 6: Reload VS Code
+# Step 6: Reload editor
 Write-Host ""
-Write-Host "Step 6: Reloading VS Code..."
+Write-Host "Step 6: Reloading $editorName..."
 
 if ($codePath) {
-    Write-Host "   Closing VS Code..." -ForegroundColor Cyan
-    Stop-Process -Name "Code" -Force -ErrorAction SilentlyContinue
+    Write-Host "   Closing $editorName..." -ForegroundColor Cyan
+    Stop-Process -Name $processName -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 3
-    Write-Host "   Relaunching VS Code..." -ForegroundColor Cyan
-    Start-Process "code" -ErrorAction SilentlyContinue
+    Write-Host "   Relaunching $editorName..." -ForegroundColor Cyan
+    Start-Process $cliName -ErrorAction SilentlyContinue
 } else {
-    Write-Host "   Please restart VS Code manually to complete the uninstall." -ForegroundColor Yellow
+    Write-Host "   Please restart $editorName manually to complete the uninstall." -ForegroundColor Yellow
 }
 
 Write-Host ""
