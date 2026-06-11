@@ -170,7 +170,7 @@ cd islands-dark
 ./install-antigravity.sh
 ```
 
-The Antigravity installer is a parallel of `install.sh` that targets Antigravity-specific paths (`~/.antigravity-ide/extensions/`, `~/Library/Application Support/Antigravity IDE/User/` on macOS, `~/.config/Antigravity IDE/User/` on Linux) and uses the `agy-ide` CLI instead of `code`. 
+The Antigravity installer is a parallel of `install.sh` that targets Antigravity-specific paths (`~/.antigravity-ide/extensions/`, `~/Library/Application Support/Antigravity IDE/User/` on macOS, `~/.config/Antigravity IDE/User/` on Linux) and uses the `agy-ide` CLI instead of `code`.
 
 > **Note:** Older deprecated Antigravity versions (<2.0) used legacy config paths, which are not currently supported. If you use an older version, manually back up your settings, install the theme yourself, and copy the relevant parts of `settings.json` into your Antigravity settings.
 
