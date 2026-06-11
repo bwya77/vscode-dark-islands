@@ -367,7 +367,7 @@ cd islands-dark
 ./uninstall-cursor.sh
 ```
 
-**Antigravity (macOS/Linux):*
+**Antigravity (macOS/Linux):**
 ```bash
 # If you still have the repo cloned:
 cd islands-dark
