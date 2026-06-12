@@ -11,6 +11,7 @@ echo ""
 
 REPO_URL="https://github.com/bwya77/vscode-dark-islands.git"
 INSTALL_DIR="$HOME/.islands-dark-temp"
+INSTALL_ARGS=("$@")
 
 # Detect OS
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -44,10 +45,10 @@ echo ""
 # Run appropriate installer
 if [[ "$OS" == "macOS" ]] || [[ "$OS" == "Linux" ]]; then
     cd "$INSTALL_DIR"
-    bash install.sh
+    bash install.sh "${INSTALL_ARGS[@]}"
 else
     echo "⚠️  Automatic installation not supported for this OS"
-    echo "   Please manually run: cd $INSTALL_DIR && ./install.sh"
+    echo "   Please manually run: cd $INSTALL_DIR && ./install.sh [--vscode|--vscodium]"
     exit 1
 fi
 

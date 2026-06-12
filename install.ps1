@@ -1,6 +1,9 @@
 # Islands Dark Theme Installer for Windows
 
-param()
+param(
+    [ValidateSet("auto", "vscode", "vscodium")]
+    [string]$Editor = "auto"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -8,16 +11,54 @@ Write-Host "Islands Dark Theme Installer for Windows" -ForegroundColor Cyan
 Write-Host "================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Check if VS Code is installed
-$codePath = Get-Command "code" -ErrorAction SilentlyContinue
-if (-not $codePath) {
-    # Try to find code in common locations
+# Pick editor target
+if ($env:ISLANDS_DARK_EDITOR -and $Editor -eq "auto") {
+    $Editor = $env:ISLANDS_DARK_EDITOR
+}
+$Editor = $Editor.ToLowerInvariant()
+if ($Editor -eq "codium") {
+    $Editor = "vscodium"
+} elseif ($Editor -eq "code") {
+    $Editor = "vscode"
+}
+
+if ($Editor -eq "auto") {
+    if (Get-Command "code" -ErrorAction SilentlyContinue) {
+        $Editor = "vscode"
+    } elseif (Get-Command "codium" -ErrorAction SilentlyContinue) {
+        $Editor = "vscodium"
+    } else {
+        $Editor = "vscode"
+    }
+}
+
+if ($Editor -eq "vscodium") {
+    $editorName = "VSCodium"
+    $cliName = "codium"
+    $extRoot = "$env:USERPROFILE\.vscode-oss\extensions"
+    $settingsDir = "$env:APPDATA\VSCodium\User"
+    $processName = "VSCodium"
+    $possiblePaths = @(
+        "$env:LOCALAPPDATA\Programs\VSCodium\bin\codium.cmd",
+        "$env:ProgramFiles\VSCodium\bin\codium.cmd",
+        "${env:ProgramFiles(x86)}\VSCodium\bin\codium.cmd"
+    )
+} else {
+    $editorName = "VS Code"
+    $cliName = "code"
+    $extRoot = "$env:USERPROFILE\.vscode\extensions"
+    $settingsDir = "$env:APPDATA\Code\User"
+    $processName = "Code"
     $possiblePaths = @(
         "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
         "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
         "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd"
     )
+}
 
+# Check if selected editor is installed
+$codePath = Get-Command $cliName -ErrorAction SilentlyContinue
+if (-not $codePath) {
     $found = $false
     foreach ($path in $possiblePaths) {
         if (Test-Path $path) {
@@ -28,17 +69,17 @@ if (-not $codePath) {
     }
 
     if (-not $found) {
-        Write-Host "Error: VS Code CLI (code) not found!" -ForegroundColor Red
-        Write-Host "Please install VS Code and make sure 'code' command is in your PATH."
+        Write-Host "Error: $editorName CLI ($cliName) not found!" -ForegroundColor Red
+        Write-Host "Please install $editorName and make sure '$cliName' command is in your PATH."
         Write-Host "You can do this by:"
-        Write-Host "  1. Open VS Code"
+        Write-Host "  1. Open $editorName"
         Write-Host "  2. Press Ctrl+Shift+P"
-        Write-Host "  3. Type 'Shell Command: Install code command in PATH'"
+        Write-Host "  3. Type 'Shell Command: Install $cliName command in PATH'"
         exit 1
     }
 }
 
-Write-Host "VS Code CLI found" -ForegroundColor Green
+Write-Host "$editorName CLI found" -ForegroundColor Green
 
 # Get the directory where this script is located
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -46,8 +87,8 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Write-Host ""
 Write-Host "Step 1: Installing Islands Dark theme extension..."
 
-# Install by copying to VS Code extensions directory
-$extDir = "$env:USERPROFILE\.vscode\extensions\bwya77.islands-dark-1.0.0"
+# Install by copying to editor extensions directory
+$extDir = Join-Path $extRoot "bwya77.islands-dark-1.0.0"
 if (Test-Path $extDir) {
     Remove-Item -Recurse -Force $extDir
 }
@@ -62,11 +103,16 @@ if (Test-Path "$extDir\themes") {
     exit 1
 }
 
+$extJson = Join-Path $extRoot "extensions.json"
+if (Test-Path $extJson) {
+    Remove-Item $extJson -Force
+    Write-Host "Cleared extensions.json ($editorName will rebuild it)" -ForegroundColor Green
+}
 
 Write-Host ""
 Write-Host "Step 2: Installing Custom UI Style extension..."
 try {
-    $output = code --install-extension subframe7536.custom-ui-style --force 2>&1
+    $output = & $cliName --install-extension subframe7536.custom-ui-style --force 2>&1
     Write-Host "Custom UI Style extension installed" -ForegroundColor Green
 } catch {
     Write-Host "Could not install Custom UI Style extension automatically" -ForegroundColor Yellow
@@ -112,8 +158,7 @@ try {
 }
 
 Write-Host ""
-Write-Host "Step 4: Applying VS Code settings..."
-$settingsDir = "$env:APPDATA\Code\User"
+Write-Host "Step 4: Applying $editorName settings..."
 if (-not (Test-Path $settingsDir)) {
     New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null
 }
@@ -272,7 +317,7 @@ if (-not (Test-Path $stateFile)) {
     }
 
     # Check if Custom UI Style was already installed
-    $cuiExtDirs = Get-ChildItem "$env:USERPROFILE\.vscode\extensions\subframe7536.custom-ui-style-*" -Directory -ErrorAction SilentlyContinue
+    $cuiExtDirs = Get-ChildItem "$extRoot\subframe7536.custom-ui-style-*" -Directory -ErrorAction SilentlyContinue
     if ($cuiExtDirs) {
         $state.customUiStyleWasInstalled = $true
     }
@@ -301,10 +346,10 @@ if (-not (Test-Path $firstRunFile)) {
     Write-Host ""
     Write-Host "Important Notes:" -ForegroundColor Yellow
     Write-Host "   - IBM Plex Mono and FiraCode Nerd Font Mono need to be installed separately"
-    Write-Host "   - After VS Code reloads, you may see a 'corrupt installation' warning"
+    Write-Host "   - After $editorName reloads, you may see a 'corrupt installation' warning"
     Write-Host "   - This is expected - click the gear icon and select 'Don't Show Again'"
     Write-Host ""
-    Read-Host "Press Enter to continue and reload VS Code"
+    Read-Host "Press Enter to continue and reload $editorName"
 }
 
 Write-Host "   Applying CSS customizations..."
@@ -313,13 +358,13 @@ Write-Host ""
 Write-Host "Islands Dark theme has been installed!" -ForegroundColor Green
 Write-Host ""
 
-# Quit VS Code and relaunch so Custom UI Style fully initializes and patches CSS
-Write-Host "   Closing VS Code..." -ForegroundColor Cyan
-Stop-Process -Name "Code" -Force -ErrorAction SilentlyContinue
+# Quit editor and relaunch so Custom UI Style fully initializes and patches CSS
+Write-Host "   Closing $editorName..." -ForegroundColor Cyan
+Stop-Process -Name $processName -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 3
 
-Write-Host "   Relaunching VS Code..." -ForegroundColor Cyan
-Start-Process "code" -ErrorAction SilentlyContinue
+Write-Host "   Relaunching $editorName..." -ForegroundColor Cyan
+Start-Process $cliName -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "=========================================" -ForegroundColor Cyan
@@ -327,12 +372,12 @@ Write-Host " IMPORTANT: One more step required!" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "To activate the custom UI styling:" -ForegroundColor Yellow
-Write-Host "   1. Wait for VS Code to finish loading"
+Write-Host "   1. Wait for $editorName to finish loading"
 Write-Host "   2. Press Ctrl+Shift+P to open the Command Palette"
 Write-Host "   3. Type: Custom UI Style: Reload" -ForegroundColor White
-Write-Host "   4. Press Enter and VS Code will reload with the new styling"
+Write-Host "   4. Press Enter and $editorName will reload with the new styling"
 Write-Host ""
-Write-Host "You only need to do this once (or after VS Code updates)." -ForegroundColor DarkGray
+Write-Host "You only need to do this once (or after $editorName updates)." -ForegroundColor DarkGray
 Write-Host ""
 
 Start-Sleep -Seconds 3

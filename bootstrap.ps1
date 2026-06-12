@@ -1,7 +1,10 @@
 # Islands Dark Theme Bootstrap Installer for Windows
 # One-liner: irm https://raw.githubusercontent.com/bwya77/vscode-dark-islands/main/bootstrap.ps1 | iex
 
-param()
+param(
+    [ValidateSet("auto", "vscode", "vscodium")]
+    [string]$Editor = "auto"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -50,7 +53,7 @@ if (-not $PowerShellPath) {
 }
 
 try {
-    & $PowerShellPath -NoProfile -ExecutionPolicy Bypass -File $InstallerPath
+    & $PowerShellPath -NoProfile -ExecutionPolicy Bypass -File $InstallerPath -Editor $Editor
     if ($LASTEXITCODE -ne 0) {
         throw "Installer exited with code $LASTEXITCODE"
     }

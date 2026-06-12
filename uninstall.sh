@@ -12,21 +12,88 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Check if code command is available
-HAS_CLI=false
-if command -v code &> /dev/null; then
-    HAS_CLI=true
-    echo -e "${GREEN}✓ VS Code CLI found${NC}"
+EDITOR_TARGET="${ISLANDS_DARK_EDITOR:-auto}"
+case "${1:-}" in
+    --vscodium|--codium)
+        EDITOR_TARGET="vscodium"
+        ;;
+    --vscode|--code)
+        EDITOR_TARGET="vscode"
+        ;;
+    ""|--auto)
+        ;;
+    *)
+        echo -e "${RED}❌ Unknown option: $1${NC}"
+        echo "Usage: $0 [--vscode|--vscodium]"
+        exit 1
+        ;;
+esac
+case "$EDITOR_TARGET" in
+    codium)
+        EDITOR_TARGET="vscodium"
+        ;;
+    code)
+        EDITOR_TARGET="vscode"
+        ;;
+esac
+
+if [ "$EDITOR_TARGET" = "auto" ]; then
+    if command -v code &> /dev/null; then
+        EDITOR_TARGET="vscode"
+    elif command -v codium &> /dev/null; then
+        EDITOR_TARGET="vscodium"
+    else
+        EDITOR_TARGET="vscode"
+    fi
+fi
+
+if [ "$EDITOR_TARGET" = "vscodium" ]; then
+    EDITOR_NAME="VSCodium"
+    EDITOR_CLI="codium"
+    EXT_ROOT="$HOME/.vscode-oss/extensions"
+    SETTINGS_DIR="$HOME/.config/VSCodium/User"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        SETTINGS_DIR="$HOME/Library/Application Support/VSCodium/User"
+    fi
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        EDITOR_DIRS=("/Applications/VSCodium.app/Contents/Resources/app/out")
+    else
+        EDITOR_DIRS=(
+            "/usr/share/codium/resources/app/out"
+            "/usr/lib/codium/resources/app/out"
+            "/opt/visual-studio-codium/resources/app/out"
+            "/snap/codium/current/usr/share/codium/resources/app/out"
+        )
+    fi
 else
-    echo -e "${YELLOW}⚠️  VS Code CLI not found - will skip CLI operations${NC}"
+    EDITOR_NAME="VS Code"
+    EDITOR_CLI="code"
+    EXT_ROOT="$HOME/.vscode/extensions"
+    SETTINGS_DIR="$HOME/.config/Code/User"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        SETTINGS_DIR="$HOME/Library/Application Support/Code/User"
+    fi
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        EDITOR_DIRS=("/Applications/Visual Studio Code.app/Contents/Resources/app/out")
+    else
+        EDITOR_DIRS=(
+            "/usr/share/code/resources/app/out"
+            "/usr/lib/code/resources/app/out"
+            "/opt/visual-studio-code/resources/app/out"
+            "/snap/code/current/usr/share/code/resources/app/out"
+        )
+    fi
+fi
+
+# Check if editor command is available
+HAS_CLI=false
+if command -v "$EDITOR_CLI" &> /dev/null; then
+    HAS_CLI=true
+    echo -e "${GREEN}✓ $EDITOR_NAME CLI found${NC}"
+else
+    echo -e "${YELLOW}⚠️  $EDITOR_NAME CLI not found - will skip CLI operations${NC}"
 fi
 echo ""
-
-# Determine settings directory
-SETTINGS_DIR="$HOME/.config/Code/User"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    SETTINGS_DIR="$HOME/Library/Application Support/Code/User"
-fi
 
 SETTINGS_FILE="$SETTINGS_DIR/settings.json"
 STATE_FILE="$SETTINGS_DIR/.islands-dark-state.json"
@@ -49,8 +116,8 @@ if [ -f "$STATE_FILE" ]; then
     fi
 fi
 
-# Step 1: Restore VS Code settings
-echo "⚙️  Step 1: Restoring VS Code settings..."
+# Step 1: Restore editor settings
+echo "⚙️  Step 1: Restoring $EDITOR_NAME settings..."
 
 RESTORED=false
 
@@ -102,7 +169,7 @@ fi
 # Step 2: Remove Islands Dark theme extension
 echo ""
 echo "🗑️  Step 2: Removing Islands Dark theme extension..."
-EXT_DIR="$HOME/.vscode/extensions/bwya77.islands-dark-1.0.0"
+EXT_DIR="$EXT_ROOT/bwya77.islands-dark-1.0.0"
 if [ -d "$EXT_DIR" ] || [ -L "$EXT_DIR" ]; then
     rm -rf "$EXT_DIR"
     echo -e "${GREEN}✓ Theme extension directory removed${NC}"
@@ -111,8 +178,8 @@ else
 fi
 
 if [ "$HAS_CLI" = true ]; then
-    code --uninstall-extension bwya77.islands-dark --force 2>/dev/null && \
-        echo -e "${GREEN}✓ Extension uninstalled via VS Code CLI${NC}" || true
+    "$EDITOR_CLI" --uninstall-extension bwya77.islands-dark --force 2>/dev/null && \
+        echo -e "${GREEN}✓ Extension uninstalled via $EDITOR_NAME CLI${NC}" || true
 fi
 
 # Step 3: Handle Custom UI Style extension
@@ -124,32 +191,20 @@ if [ "$CUI_WAS_INSTALLED" = "true" ]; then
     echo "   The Islands Dark CSS rules have been removed from your settings."
 else
     if [ "$HAS_CLI" = true ]; then
-        code --uninstall-extension subframe7536.custom-ui-style --force 2>/dev/null && \
+        "$EDITOR_CLI" --uninstall-extension subframe7536.custom-ui-style --force 2>/dev/null && \
             echo -e "${GREEN}✓ Custom UI Style extension uninstalled${NC}" || \
             echo -e "${YELLOW}⚠️  Custom UI Style may already be removed${NC}"
     else
-        echo -e "${YELLOW}⚠️  Please uninstall Custom UI Style manually from VS Code Extensions${NC}"
+        echo -e "${YELLOW}⚠️  Please uninstall Custom UI Style manually from $EDITOR_NAME Extensions${NC}"
     fi
 fi
 
-# Step 3b: Restore VS Code workbench files patched by Custom UI Style
+# Step 3b: Restore editor workbench files patched by Custom UI Style
 echo ""
 echo "🔧 Step 3b: Removing Custom UI Style CSS patches..."
 
 CUI_RESTORED=0
-# Find VS Code installation directory
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    VSCODE_DIRS=("/Applications/Visual Studio Code.app/Contents/Resources/app/out")
-else
-    VSCODE_DIRS=(
-        "/usr/share/code/resources/app/out"
-        "/usr/lib/code/resources/app/out"
-        "/opt/visual-studio-code/resources/app/out"
-        "/snap/code/current/usr/share/code/resources/app/out"
-    )
-fi
-
-for vscode_base in "${VSCODE_DIRS[@]}"; do
+for vscode_base in "${EDITOR_DIRS[@]}"; do
     [ -d "$vscode_base" ] || continue
 
     # Custom UI Style saves originals as *.custom-ui-style.{ext}
@@ -165,7 +220,7 @@ for vscode_base in "${VSCODE_DIRS[@]}"; do
 done
 
 if [ "$CUI_RESTORED" -gt 0 ]; then
-    echo -e "${GREEN}✓ $CUI_RESTORED VS Code file(s) restored to original state${NC}"
+    echo -e "${GREEN}✓ $CUI_RESTORED $EDITOR_NAME file(s) restored to original state${NC}"
 else
     echo "   No Custom UI Style patches found (already clean)"
 fi
@@ -211,15 +266,15 @@ if [ "$BACKUP_COUNT" -gt 0 ]; then
     echo "   $BACKUP_COUNT backup file(s) removed"
 fi
 
-# Step 6: Reload VS Code
+# Step 6: Reload editor
 echo ""
-echo "🔄 Step 6: Reloading VS Code..."
+echo "🔄 Step 6: Reloading $EDITOR_NAME..."
 
 if [ "$HAS_CLI" = true ]; then
-    code --reload-window 2>/dev/null || code . 2>/dev/null || true
-    echo -e "${GREEN}✓ VS Code reload triggered${NC}"
+    "$EDITOR_CLI" --reload-window 2>/dev/null || "$EDITOR_CLI" . 2>/dev/null || true
+    echo -e "${GREEN}✓ $EDITOR_NAME reload triggered${NC}"
 else
-    echo -e "${YELLOW}⚠️  Please restart VS Code manually to complete the uninstall${NC}"
+    echo -e "${YELLOW}⚠️  Please restart $EDITOR_NAME manually to complete the uninstall${NC}"
 fi
 
 echo ""
