@@ -105,8 +105,11 @@ if (Test-Path "$extDir\themes") {
 
 $extJson = Join-Path $extRoot "extensions.json"
 if (Test-Path $extJson) {
+    $extJsonBackup = "$extJson.pre-islands-dark.$(Get-Date -Format 'yyyyMMddHHmmss')"
+    Copy-Item $extJson $extJsonBackup -Force
     Remove-Item $extJson -Force
-    Write-Host "Cleared extensions.json ($editorName will rebuild it)" -ForegroundColor Green
+    Write-Host "Backed up extensions.json and cleared it ($editorName will rebuild it)" -ForegroundColor Green
+    Write-Host "   Backup: $extJsonBackup" -ForegroundColor DarkGray
 }
 
 Write-Host ""
@@ -295,6 +298,7 @@ if (-not (Test-Path $stateFile)) {
         previousIconTheme  = ""
         customUiStyleWasInstalled = $false
         settingsBackupPath = ""
+        extensionsJsonBackupPath = ""
         fonts = @{}
         installedAt = (Get-Date -Format "o")
     }
@@ -314,6 +318,11 @@ if (-not (Test-Path $stateFile)) {
             }
         } catch {}
         $state.settingsBackupPath = $backupFile
+    }
+
+    # Record extensions.json backup path
+    if ($extJsonBackup -and (Test-Path $extJsonBackup)) {
+        $state.extensionsJsonBackupPath = $extJsonBackup
     }
 
     # Check if Custom UI Style was already installed
