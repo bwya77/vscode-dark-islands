@@ -194,6 +194,20 @@ if ($codePath) {
 
 # Step 3: Handle Custom UI Style extension
 Write-Host ""
+Write-Host "Step 2b: Clearing extensions.json..."
+
+# Remove extensions.json so the editor rebuilds it from the extensions
+# actually on disk. Restoring the pre-install backup would lose any
+# extensions the user installed after Islands Dark.
+$extJson = Join-Path $extRoot "extensions.json"
+if (Test-Path $extJson) {
+    Remove-Item $extJson -Force
+    Write-Host "extensions.json removed ($editorName will rebuild it on next launch)" -ForegroundColor Green
+} else {
+    Write-Host "extensions.json not present (already clean)" -ForegroundColor DarkGray
+}
+
+Write-Host ""
 Write-Host "Step 3: Handling Custom UI Style extension..."
 
 if ($state -and $state.customUiStyleWasInstalled -eq $true) {
@@ -290,7 +304,16 @@ if (Test-Path $settingsDir) {
     $backupFiles = Get-ChildItem "$settingsDir\settings.json.pre-islands-dark*" -ErrorAction SilentlyContinue
     if ($backupFiles.Count -gt 0) {
         $backupFiles | Remove-Item -Force -ErrorAction SilentlyContinue
-        Write-Host "$($backupFiles.Count) backup file(s) removed" -ForegroundColor DarkGray
+        Write-Host "$($backupFiles.Count) settings backup file(s) removed" -ForegroundColor DarkGray
+    }
+}
+
+# Clean up extensions.json backup files
+if (Test-Path $extRoot) {
+    $extJsonBackups = Get-ChildItem "$extRoot\extensions.json.pre-islands-dark*" -ErrorAction SilentlyContinue
+    if ($extJsonBackups.Count -gt 0) {
+        $extJsonBackups | Remove-Item -Force -ErrorAction SilentlyContinue
+        Write-Host "$($extJsonBackups.Count) extensions.json backup file(s) removed" -ForegroundColor DarkGray
     }
 }
 

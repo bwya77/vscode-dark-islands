@@ -101,9 +101,13 @@ else
 fi
 
 EXT_JSON="$EXT_ROOT/extensions.json"
+EXT_JSON_BACKUP=""
 if [ -f "$EXT_JSON" ]; then
+    EXT_JSON_BACKUP="$EXT_JSON.pre-islands-dark.$(date +%Y%m%d%H%M%S)"
+    cp "$EXT_JSON" "$EXT_JSON_BACKUP"
     rm -f "$EXT_JSON"
-    echo -e "${GREEN}✓ Cleared extensions.json ($EDITOR_NAME will rebuild it)${NC}"
+    echo -e "${GREEN}✓ Backed up extensions.json and cleared it ($EDITOR_NAME will rebuild it)${NC}"
+    echo "   Backup: $EXT_JSON_BACKUP"
 fi
 
 echo ""
@@ -225,6 +229,7 @@ if [ ! -f "$STATE_FILE" ]; then
   "previousIconTheme": "$PREV_ICON_THEME",
   "customUiStyleWasInstalled": $CUI_WAS_INSTALLED,
   "settingsBackupPath": "$BACKUP_PATH",
+  "extensionsJsonBackupPath": "$EXT_JSON_BACKUP",
   "fonts": {${FONT_PRE_STATE}},
   "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }

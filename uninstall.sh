@@ -184,6 +184,20 @@ fi
 
 # Step 3: Handle Custom UI Style extension
 echo ""
+echo "🔧 Step 2b: Clearing extensions.json..."
+
+# Remove extensions.json so the editor rebuilds it from the extensions
+# actually on disk. Restoring the pre-install backup would lose any
+# extensions the user installed after Islands Dark.
+EXT_JSON="$EXT_ROOT/extensions.json"
+if [ -f "$EXT_JSON" ]; then
+    rm -f "$EXT_JSON"
+    echo -e "${GREEN}✓ extensions.json removed ($EDITOR_NAME will rebuild it on next launch)${NC}"
+else
+    echo "   extensions.json not present (already clean)"
+fi
+
+echo ""
 echo "🔧 Step 3: Handling Custom UI Style extension..."
 
 if [ "$CUI_WAS_INSTALLED" = "true" ]; then
@@ -263,7 +277,14 @@ fi
 BACKUP_COUNT=$(ls "$SETTINGS_DIR"/settings.json.pre-islands-dark* 2>/dev/null | wc -l)
 if [ "$BACKUP_COUNT" -gt 0 ]; then
     rm -f "$SETTINGS_DIR"/settings.json.pre-islands-dark*
-    echo "   $BACKUP_COUNT backup file(s) removed"
+    echo "   $BACKUP_COUNT settings backup file(s) removed"
+fi
+
+# Clean up extensions.json backup files
+EXT_BACKUP_COUNT=$(ls "$EXT_ROOT"/extensions.json.pre-islands-dark* 2>/dev/null | wc -l)
+if [ "$EXT_BACKUP_COUNT" -gt 0 ]; then
+    rm -f "$EXT_ROOT"/extensions.json.pre-islands-dark*
+    echo "   $EXT_BACKUP_COUNT extensions.json backup file(s) removed"
 fi
 
 # Step 6: Reload editor
